@@ -132,8 +132,8 @@ export default function Home() {
                   </div>
                   <CardTitle className="text-lg">{alumni.name}</CardTitle>
                   <div className="text-sm text-muted-foreground">
-                    <p className="font-medium">{alumni.position}</p>
-                    <p>{alumni.company}</p>
+                    
+                    
                   </div>
                 </CardHeader>
                 <CardContent>
