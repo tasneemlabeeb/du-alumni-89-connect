@@ -25,8 +25,10 @@ export default function Directory() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [filteredProfiles, setFilteredProfiles] = useState<Profile[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [departmentFilter, setDepartmentFilter] = useState('all');
-  const [countryFilter, setCountryFilter] = useState('all');
+  const [departmentFilter, setDepartmentFilter] = useState('');
+  const [countryFilter, setCountryFilter] = useState('');
+  const [districtFilter, setDistrictFilter] = useState('');
+  const [workplaceFilter, setWorkplaceFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const { isApprovedMember } = useAuth();
 
@@ -39,7 +41,7 @@ export default function Directory() {
 
   useEffect(() => {
     filterProfiles();
-  }, [searchTerm, departmentFilter, countryFilter, profiles]);
+  }, [searchTerm, departmentFilter, countryFilter, districtFilter, workplaceFilter, profiles]);
 
   const fetchProfiles = async () => {
     try {
@@ -69,18 +71,29 @@ export default function Directory() {
         profile.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         profile.department?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         profile.workplace?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        profile.country?.toLowerCase().includes(searchTerm.toLowerCase())
+        profile.country?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        profile.district?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     // Department filter
-    if (departmentFilter !== 'all') {
+    if (departmentFilter && departmentFilter !== '') {
       filtered = filtered.filter(profile => profile.department === departmentFilter);
     }
 
     // Country filter
-    if (countryFilter !== 'all') {
+    if (countryFilter && countryFilter !== '') {
       filtered = filtered.filter(profile => profile.country === countryFilter);
+    }
+
+    // District filter
+    if (districtFilter && districtFilter !== '') {
+      filtered = filtered.filter(profile => profile.district === districtFilter);
+    }
+
+    // Workplace filter
+    if (workplaceFilter && workplaceFilter !== '') {
+      filtered = filtered.filter(profile => profile.workplace === workplaceFilter);
     }
 
     setFilteredProfiles(filtered);
@@ -125,21 +138,21 @@ export default function Directory() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search by name, department, workplace, or country..."
+              placeholder="Search by name, department, workplace, district, or country..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="Filter by Department" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Departments</SelectItem>
-                {departments.map(dept => (
+                <SelectItem value="">All Departments</SelectItem>
+                {Array.from(new Set(profiles.map(p => p.department).filter(Boolean))).map(dept => (
                   <SelectItem key={dept} value={dept}>{dept}</SelectItem>
                 ))}
               </SelectContent>
@@ -150,9 +163,33 @@ export default function Directory() {
                 <SelectValue placeholder="Filter by Country" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Countries</SelectItem>
-                {countries.map(country => (
+                <SelectItem value="">All Countries</SelectItem>
+                {Array.from(new Set(profiles.map(p => p.country).filter(Boolean))).map(country => (
                   <SelectItem key={country} value={country}>{country}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={districtFilter} onValueChange={setDistrictFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Filter by District" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Districts</SelectItem>
+                {Array.from(new Set(profiles.map(p => p.district).filter(Boolean))).map(district => (
+                  <SelectItem key={district} value={district}>{district}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={workplaceFilter} onValueChange={setWorkplaceFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Filter by Organization" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Organizations</SelectItem>
+                {Array.from(new Set(profiles.map(p => p.workplace).filter(Boolean))).map(workplace => (
+                  <SelectItem key={workplace} value={workplace}>{workplace}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

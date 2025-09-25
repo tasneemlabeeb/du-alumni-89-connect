@@ -25,6 +25,7 @@ export function Navigation() {
     { path: '/about', label: 'About Us', icon: Info },
     ...(isApprovedMember ? [
       { path: '/directory', label: 'Directory', icon: Users },
+      { path: '/profile', label: 'Profile', icon: Users },
       { path: '/news', label: 'News & Events', icon: Newspaper },
       { path: '/gallery', label: 'Gallery', icon: Image },
     ] : []),

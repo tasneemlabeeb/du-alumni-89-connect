@@ -15,7 +15,8 @@ import Directory from "./pages/Directory";
 import News from "./pages/News";
 import Gallery from "./pages/Gallery";
 import Admin from "./pages/Admin";
-import NotFound from "./pages/NotFound";
+import Profile from '@/pages/Profile';
+import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,14 @@ const App = () => (
               element={
                 <ProtectedRoute adminOnly>
                   <Admin />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute approvedMemberOnly>
+                  <Profile />
                 </ProtectedRoute>
               } 
             />

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import NewsEventManagement from '@/components/admin/NewsEventManagement';
 
 interface PendingMember {
   id: string;
@@ -378,58 +379,7 @@ export default function Admin() {
           </TabsContent>
 
           <TabsContent value="content" className="mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Newspaper className="h-5 w-5 mr-2" />
-                    News Management
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Create and manage news articles
-                  </p>
-                  <Button variant="outline" className="w-full" disabled>
-                    Coming Soon
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Calendar className="h-5 w-5 mr-2" />
-                    Event Management
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Create and manage events
-                  </p>
-                  <Button variant="outline" className="w-full" disabled>
-                    Coming Soon
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <ImageIcon className="h-5 w-5 mr-2" />
-                    Gallery Management
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Upload and organize photos
-                  </p>
-                  <Button variant="outline" className="w-full" disabled>
-                    Coming Soon
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+            <NewsEventManagement />
           </TabsContent>
 
           <TabsContent value="settings" className="mt-6">
