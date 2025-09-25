@@ -110,7 +110,6 @@ export default function NewsEventManagement() {
     try {
       const newsData = {
         ...newsForm,
-        max_attendees: eventForm.max_attendees ? parseInt(eventForm.max_attendees) : null,
         author_id: (await supabase.auth.getUser()).data.user?.id
       };
 
