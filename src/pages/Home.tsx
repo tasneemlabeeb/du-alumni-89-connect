@@ -145,24 +145,37 @@ export default function Home() {
             company: "TechStartup Solutions",
             achievement: "Building the next generation of fintech",
             photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
-          }].map((alumni, index) => <Card key={index} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="w-16 h-16 rounded-full overflow-hidden mb-4">
-                    <img src={alumni.photo} alt={alumni.name} className="w-full h-full object-cover" />
-                  </div>
-                  <CardTitle className="text-lg">{alumni.name}</CardTitle>
-                  <div className="text-sm text-muted-foreground">
-                    <p>{alumni.position}</p>
-                    <p>{alumni.company}</p>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm">{alumni.achievement}</p>
-                </CardContent>
-              </Card>)}
+          }].map((alumni, index) => (
+  <Card
+    key={index}
+    className="hover:shadow-lg transition-shadow bg-green-100"
+  >
+    <CardHeader>
+      <div className="w-16 h-16 rounded-full overflow-hidden mb-4">
+        <img
+          src={alumni.photo}
+          alt={alumni.name}
+          className="w-full h-full object-cover"
+        />
+      </div>
+      <CardTitle className="text-lg">{alumni.name}</CardTitle>
+      <div className="text-sm text-muted-foreground">
+        <p>{alumni.position}</p>
+        <p>{alumni.company}</p>
+      </div>
+    </CardHeader>
+    <CardContent>
+      <p className="text-sm">{alumni.achievement}</p>
+    </CardContent>
+  </Card>
+))}
           </div>
         </section>
 
+
+
+
+        
         {/* News & Events Preview */}
         <section>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
