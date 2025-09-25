@@ -22,9 +22,26 @@ export default function Home() {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [events, setEvents] = useState<EventItem[]>([]);
   const [memberCount, setMemberCount] = useState(0);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const heroImages = [
+    "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1920&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1920&h=400&fit=crop", 
+    "https://images.unsplash.com/photo-1562774053-701939374585?w=1920&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?w=1920&h=400&fit=crop"
+  ];
+
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const slideInterval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+    }, 4000);
+
+    return () => clearInterval(slideInterval);
+  }, [heroImages.length]);
   const fetchData = async () => {
     try {
       // Fetch latest news
@@ -57,8 +74,23 @@ export default function Home() {
   };
   return <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative h-96 bg-gradient-to-r from-primary to-accent flex items-center justify-center text-center text-primary-foreground">
-        <div className="max-w-4xl mx-auto px-6">
+      <section className="relative h-96 overflow-hidden flex items-center justify-center text-center text-white">
+        {/* Background Images */}
+        {heroImages.map((image, index) => (
+          <div
+            key={index}
+            className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
+              index === currentSlide ? 'opacity-100' : 'opacity-0'
+            }`}
+            style={{ backgroundImage: `url(${image})` }}
+          />
+        ))}
+        
+        {/* Overlay for text readability */}
+        <div className="absolute inset-0 bg-black/40" />
+        
+        {/* Content */}
+        <div className="relative max-w-4xl mx-auto px-6 z-10">
           <h1 className="text-4xl md:text-6xl font-bold mb-4">
            আমরা একসাথে, বন্ধনের শক্তিতে 
           </h1>
