@@ -34,9 +34,10 @@ export default function News() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [isApprovedMember]);
 
   const fetchData = async () => {
+    setLoading(true);
     try {
       // Fetch news - published news is visible to everyone
       const { data: newsData } = await supabase

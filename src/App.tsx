@@ -71,7 +71,7 @@ const App = () => (
                 <Route 
                   path="/profile" 
                   element={
-                    <ProtectedRoute approvedMemberOnly>
+                    <ProtectedRoute>
                       <Profile />
                     </ProtectedRoute>
                   } 

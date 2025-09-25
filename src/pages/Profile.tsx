@@ -48,6 +48,8 @@ export default function Profile() {
   useEffect(() => {
     if (user) {
       fetchProfile();
+    } else {
+      setLoading(false);
     }
   }, [user]);
 
@@ -57,9 +59,9 @@ export default function Profile() {
         .from('profiles')
         .select('*')
         .eq('user_id', user?.id)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error) throw error;
 
       if (data) {
         setProfile({
