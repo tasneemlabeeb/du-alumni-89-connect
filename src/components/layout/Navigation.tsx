@@ -23,11 +23,11 @@ export function Navigation() {
   const navItems = [
     { path: '/', label: 'Home', icon: Home },
     { path: '/about', label: 'About Us', icon: Info },
-    ...(isApprovedMember ? [
+    { path: '/news', label: 'News & Events', icon: Newspaper },
+    { path: '/gallery', label: 'Gallery', icon: Image },
+    ...(user ? [
       { path: '/directory', label: 'Directory', icon: Users },
       { path: '/profile', label: 'Profile', icon: Users },
-      { path: '/news', label: 'News & Events', icon: Newspaper },
-      { path: '/gallery', label: 'Gallery', icon: Image },
     ] : []),
     ...(isAdmin ? [
       { path: '/admin', label: 'Admin Panel', icon: Settings },

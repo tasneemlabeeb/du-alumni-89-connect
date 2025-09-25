@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { Navigation } from "@/components/layout/Navigation";
 import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
+import { Footer } from "@/components/layout/Footer";
 
 // Pages
 import Home from "./pages/Home";
@@ -25,58 +26,63 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Navigation />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route 
-              path="/directory" 
-              element={
-                <ProtectedRoute approvedMemberOnly>
-                  <Directory />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/news" 
-              element={
-                <ProtectedRoute>
-                  <News />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/gallery" 
-              element={
-                <ProtectedRoute approvedMemberOnly>
-                  <Gallery />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin" 
-              element={
-                <ProtectedRoute adminOnly>
-                  <Admin />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/profile" 
-              element={
-                <ProtectedRoute approvedMemberOnly>
-                  <Profile />
-                </ProtectedRoute>
-              } 
-            />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <div className="min-h-screen flex flex-col">
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Navigation />
+            <main className="flex-1">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route 
+                  path="/directory" 
+                  element={
+                    <ProtectedRoute approvedMemberOnly>
+                      <Directory />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/news" 
+                  element={
+                    <ProtectedRoute>
+                      <News />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/gallery" 
+                  element={
+                    <ProtectedRoute approvedMemberOnly>
+                      <Gallery />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin" 
+                  element={
+                    <ProtectedRoute adminOnly>
+                      <Admin />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/profile" 
+                  element={
+                    <ProtectedRoute approvedMemberOnly>
+                      <Profile />
+                    </ProtectedRoute>
+                  } 
+                />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </main>
+            <Footer />
+          </BrowserRouter>
+        </div>
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
