@@ -25,49 +25,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          // Check user roles and membership status
-          setTimeout(async () => {
-            try {
-              const [rolesResponse, memberResponse] = await Promise.all([
-                supabase
-                  .from('user_roles')
-                  .select('role')
-                  .eq('user_id', session.user.id),
-                supabase
-                  .from('members')
-                  .select('status')
-                  .eq('user_id', session.user.id)
-                  .single()
-              ]);
 
-              setIsAdmin(rolesResponse.data?.some(r => r.role === 'admin') ?? false);
-              setIsApprovedMember(memberResponse.data?.status === 'approved');
-            } catch (error) {
-              console.error('Error checking user status:', error);
-            }
-          }, 0);
+        if (session?.user) {
+          try {
+            const [rolesResponse, memberResponse] = await Promise.all([
+              supabase.from('user_roles').select('role').eq('user_id', session.user.id),
+              supabase.from('members').select('status').eq('user_id', session.user.id).maybeSingle()
+            ]);
+
+            setIsAdmin(rolesResponse.data?.some(r => r.role === 'admin') ?? false);
+            setIsApprovedMember(memberResponse.data?.status === 'approved');
+          } catch (error) {
+            console.error('Error checking user status:', error);
+            setIsAdmin(false);
+            setIsApprovedMember(false);
+          }
         } else {
           setIsAdmin(false);
           setIsApprovedMember(false);
         }
-        
+
         setLoading(false);
       }
     );
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Initialize existing session and status
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
       setUser(session?.user ?? null);
+
+      if (session?.user) {
+        try {
+          const [rolesResponse, memberResponse] = await Promise.all([
+            supabase.from('user_roles').select('role').eq('user_id', session.user.id),
+            supabase.from('members').select('status').eq('user_id', session.user.id).maybeSingle()
+          ]);
+
+          setIsAdmin(rolesResponse.data?.some(r => r.role === 'admin') ?? false);
+          setIsApprovedMember(memberResponse.data?.status === 'approved');
+        } catch (error) {
+          console.error('Error checking user status:', error);
+        }
+      }
+
       setLoading(false);
-    });
+    })();
 
     return () => subscription.unsubscribe();
   }, []);

@@ -99,18 +99,7 @@ export default function Directory() {
     setFilteredProfiles(filtered);
   };
 
-  if (!isApprovedMember) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Access Restricted</h2>
-          <p className="text-muted-foreground">
-            Only approved members can access the alumni directory.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // Access control is handled by ProtectedRoute. Proceed to render content.
 
   if (loading) {
     return (
