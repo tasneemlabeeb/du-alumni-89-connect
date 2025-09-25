@@ -23,23 +23,14 @@ export default function Home() {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [memberCount, setMemberCount] = useState(0);
   const [currentSlide, setCurrentSlide] = useState(0);
-
-  const heroImages = [
-    "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1920&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1920&h=400&fit=crop", 
-    "https://images.unsplash.com/photo-1562774053-701939374585?w=1920&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?w=1920&h=400&fit=crop"
-  ];
-
+  const heroImages = ["https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1920&h=400&fit=crop", "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1920&h=400&fit=crop", "https://images.unsplash.com/photo-1562774053-701939374585?w=1920&h=400&fit=crop", "https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?w=1920&h=400&fit=crop"];
   useEffect(() => {
     fetchData();
   }, []);
-
   useEffect(() => {
     const slideInterval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+      setCurrentSlide(prev => (prev + 1) % heroImages.length);
     }, 4000);
-
     return () => clearInterval(slideInterval);
   }, [heroImages.length]);
   const fetchData = async () => {
@@ -76,22 +67,16 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative h-96 overflow-hidden flex items-center justify-center text-center text-white">
         {/* Background Images */}
-        {heroImages.map((image, index) => (
-          <div
-            key={index}
-            className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
-              index === currentSlide ? 'opacity-100' : 'opacity-0'
-            }`}
-            style={{ backgroundImage: `url(${image})` }}
-          />
-        ))}
+        {heroImages.map((image, index) => <div key={index} className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`} style={{
+        backgroundImage: `url(${image})`
+      }} />)}
         
         {/* Overlay for text readability */}
         <div className="absolute inset-0 bg-black/40" />
         
         {/* Content */}
         <div className="relative max-w-4xl mx-auto px-6 z-10">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">
+          <h1 className="text-4xl font-bold mb-4 md:text-5xl">
            আমরা একসাথে, বন্ধনের শক্তিতে 
           </h1>
           <p className="text-xl md:text-2xl mb-8 opacity-90">
@@ -163,11 +148,7 @@ export default function Home() {
           }].map((alumni, index) => <Card key={index} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div className="w-16 h-16 rounded-full overflow-hidden mb-4">
-                    <img 
-                      src={alumni.photo} 
-                      alt={alumni.name}
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={alumni.photo} alt={alumni.name} className="w-full h-full object-cover" />
                   </div>
                   <CardTitle className="text-lg">{alumni.name}</CardTitle>
                   <div className="text-sm text-muted-foreground">
