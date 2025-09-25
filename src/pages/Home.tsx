@@ -111,17 +111,17 @@ export default function Home() {
           <h2 className="text-3xl font-bold text-center mb-8">Notable Alumni</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[{
-            name: "Dr. Sarah Ahmed",
+            name: "Dr Shariful Dulu",
             position: "Chief Medical Officer",
             company: "Global Health Initiative",
             achievement: "Leading healthcare innovation in South Asia"
           }, {
-            name: "Prof. Rajesh Kumar",
+            name: "Nasimul Porag",
             position: "Dean of Engineering",
             company: "MIT",
             achievement: "Pioneering sustainable technology research"
           }, {
-            name: "Ms. Fatima Khan",
+            name: "Kamrul Hassan",
             position: "CEO",
             company: "TechStartup Solutions",
             achievement: "Building the next generation of fintech"
