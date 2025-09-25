@@ -68,7 +68,7 @@ export default function Home() {
       <section className="relative h-96 bg-gradient-to-r from-primary to-accent flex items-center justify-center text-center text-primary-foreground">
         <div className="max-w-4xl mx-auto px-6">
           <h1 className="text-4xl md:text-6xl font-bold mb-4">
-            Celebrating the Legacy of DU Alumni '89
+           আমরা একসাথে, বন্ধনের শক্তিতে 
           </h1>
           <p className="text-xl md:text-2xl mb-8 opacity-90">
             Connecting generations, building futures together
