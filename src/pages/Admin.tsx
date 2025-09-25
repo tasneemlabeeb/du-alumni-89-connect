@@ -65,33 +65,55 @@ export default function Admin() {
 
   const fetchData = async () => {
     try {
-      // Fetch pending members with profiles
+      // Fetch pending members
       const { data: pendingData } = await supabase
         .from('members')
-        .select(`
-          id, user_id, status, created_at,
-          profiles!members_user_id_fkey (full_name, email, department, country, workplace)
-        `)
+        .select('id, user_id, status, created_at')
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
 
-      // Fetch all members with profiles
+      // Fetch all members
       const { data: allMembersData } = await supabase
         .from('members')
-        .select(`
-          id, user_id, status,
-          profiles!members_user_id_fkey (full_name, email, department, country, workplace)
-        `)
+        .select('id, user_id, status')
         .order('created_at', { ascending: false });
 
-      // Calculate stats
-      const total = allMembersData?.length || 0;
-      const approved = allMembersData?.filter(m => m.status === 'approved').length || 0;
-      const pending = allMembersData?.filter(m => m.status === 'pending').length || 0;
-      const rejected = allMembersData?.filter(m => m.status === 'rejected').length || 0;
+      // Fetch profiles for all users
+      const userIds = [...new Set([
+        ...(pendingData?.map(m => m.user_id) || []),
+        ...(allMembersData?.map(m => m.user_id) || [])
+      ])];
 
-      setPendingMembers(pendingData || []);
-      setAllMembers(allMembersData || []);
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, email, department, country, workplace')
+        .in('user_id', userIds);
+
+      // Create profile lookup
+      const profileLookup = (profilesData || []).reduce((acc, profile) => {
+        acc[profile.user_id] = profile;
+        return acc;
+      }, {} as Record<string, any>);
+
+      // Combine data
+      const pendingWithProfiles = (pendingData || []).map(member => ({
+        ...member,
+        profiles: profileLookup[member.user_id] || null
+      }));
+
+      const allMembersWithProfiles = (allMembersData || []).map(member => ({
+        ...member,
+        profiles: profileLookup[member.user_id] || null
+      }));
+
+      // Calculate stats
+      const total = allMembersWithProfiles?.length || 0;
+      const approved = allMembersWithProfiles?.filter(m => m.status === 'approved').length || 0;
+      const pending = allMembersWithProfiles?.filter(m => m.status === 'pending').length || 0;
+      const rejected = allMembersWithProfiles?.filter(m => m.status === 'rejected').length || 0;
+
+      setPendingMembers(pendingWithProfiles);
+      setAllMembers(allMembersWithProfiles);
       setStats({ total, approved, pending, rejected });
     } catch (error) {
       console.error('Error fetching data:', error);

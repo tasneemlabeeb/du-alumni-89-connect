@@ -43,16 +43,34 @@ export default function Gallery() {
     }
 
     try {
-      const { data, error } = await supabase
+      // Fetch gallery items
+      const { data: galleryData, error } = await supabase
         .from('gallery')
-        .select(`
-          *,
-          profiles!gallery_uploaded_by_fkey (full_name)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setGalleryItems(data || []);
+
+      // Fetch profiles for uploaders
+      const uploaderIds = [...new Set(galleryData?.map(item => item.uploaded_by) || [])];
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('user_id, full_name')
+        .in('user_id', uploaderIds);
+
+      // Create profile lookup
+      const profileLookup = (profilesData || []).reduce((acc, profile) => {
+        acc[profile.user_id] = profile;
+        return acc;
+      }, {} as Record<string, any>);
+
+      // Combine data
+      const itemsWithProfiles = (galleryData || []).map(item => ({
+        ...item,
+        profiles: profileLookup[item.uploaded_by] || null
+      }));
+
+      setGalleryItems(itemsWithProfiles);
     } catch (error) {
       console.error('Error fetching gallery items:', error);
     } finally {
