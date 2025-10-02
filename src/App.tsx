@@ -16,6 +16,8 @@ import Auth from "./pages/Auth";
 import Directory from "./pages/Directory";
 import News from "./pages/News";
 import Gallery from "./pages/Gallery";
+import Birthday from "./pages/Birthday";
+import BlogDemo from "./pages/BlogDemo";
 import Admin from "./pages/Admin";
 import Profile from '@/pages/Profile';
 import NotFound from './pages/NotFound';
@@ -36,14 +38,8 @@ const App = () => (
                 <Route path="/" element={<Home />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/auth" element={<Auth />} />
-                <Route 
-                  path="/directory" 
-                  element={
-                    <ProtectedRoute approvedMemberOnly>
-                      <Directory />
-                    </ProtectedRoute>
-                  } 
-                />
+                <Route path="/directory" element={<Directory />} />
+                <Route path="/blog" element={<BlogDemo />} />
                 <Route 
                   path="/news" 
                   element={
@@ -57,6 +53,14 @@ const App = () => (
                   element={
                     <ProtectedRoute approvedMemberOnly>
                       <Gallery />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/birthday" 
+                  element={
+                    <ProtectedRoute approvedMemberOnly>
+                      <Birthday />
                     </ProtectedRoute>
                   } 
                 />

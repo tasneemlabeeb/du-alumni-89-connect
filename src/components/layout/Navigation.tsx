@@ -11,7 +11,9 @@ import {
   LogOut,
   Home,
   Menu,
-  X
+  X,
+  Cake,
+  FileText
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -23,10 +25,12 @@ export function Navigation() {
   const navItems = [
     { path: '/', label: 'Home', icon: Home },
     { path: '/about', label: 'About Us', icon: Info },
+    { path: '/directory', label: 'Directory', icon: Users },
+    { path: '/blog', label: 'Blog', icon: FileText },
     { path: '/news', label: 'News & Events', icon: Newspaper },
     { path: '/gallery', label: 'Gallery', icon: Image },
     ...(user ? [
-      { path: '/directory', label: 'Directory', icon: Users },
+      { path: '/birthday', label: 'Birthday', icon: Cake },
       { path: '/profile', label: 'Profile', icon: Users },
     ] : []),
     ...(isAdmin ? [

@@ -135,10 +135,9 @@ export default function Auth() {
         </div>
 
         <Tabs defaultValue="signin" className="w-full max-w-md">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="signin">Sign In</TabsTrigger>
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            <TabsTrigger value="reset">Reset</TabsTrigger>
           </TabsList>
 
           <TabsContent value="signin">
@@ -187,6 +186,48 @@ export default function Auth() {
                     {signInLoading ? 'Signing in...' : 'Sign In'}
                   </Button>
                 </form>
+                
+                {/* Password Reset Section */}
+                <div className="mt-6 pt-4 border-t border-border">
+                  <div className="text-center text-sm text-muted-foreground mb-3">
+                    Forgot your password?
+                  </div>
+                  {resetEmailSent ? (
+                    <div className="text-center">
+                      <p className="text-green-600 mb-3 text-sm">
+                        Password reset email sent! Check your inbox.
+                      </p>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setResetEmailSent(false)}
+                        className="w-full"
+                        size="sm"
+                      >
+                        Send Another Email
+                      </Button>
+                    </div>
+                  ) : (
+                    <form onSubmit={handlePasswordReset} className="space-y-3">
+                      <Input
+                        type="email"
+                        placeholder="Enter email for reset"
+                        value={resetForm.email}
+                        onChange={(e) => setResetForm({ ...resetForm, email: e.target.value })}
+                        required
+                      />
+                      <Button 
+                        type="submit" 
+                        variant="outline"
+                        className="w-full" 
+                        disabled={resetLoading}
+                        size="sm"
+                      >
+                        <KeyRound className="mr-2 h-4 w-4" />
+                        {resetLoading ? 'Sending...' : 'Reset Password'}
+                      </Button>
+                    </form>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -252,58 +293,7 @@ export default function Auth() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="reset">
-            <Card>
-              <CardHeader className="text-center">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                  <KeyRound className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle>Reset Password</CardTitle>
-                <CardDescription>
-                  Enter your email address and we'll send you a link to reset your password.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {resetEmailSent ? (
-                  <div className="text-center">
-                    <p className="text-green-600 mb-4">
-                      Password reset email sent! Check your inbox and follow the instructions.
-                    </p>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setResetEmailSent(false)}
-                      className="w-full"
-                    >
-                      Send Another Email
-                    </Button>
-                  </div>
-                ) : (
-                  <form onSubmit={handlePasswordReset} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="reset-email">Email</Label>
-                      <Input
-                        id="reset-email"
-                        type="email"
-                        placeholder="Enter your email address"
-                        value={resetForm.email}
-                        onChange={(e) => setResetForm({ ...resetForm, email: e.target.value })}
-                        required
-                      />
-                    </div>
-                    
-                    <Button 
-                      type="submit" 
-                      className="w-full" 
-                      disabled={resetLoading}
-                    >
-                      <KeyRound className="mr-2 h-4 w-4" />
-                      {resetLoading ? 'Sending...' : 'Send Reset Email'}
-                    </Button>
-                  </form>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+
         </Tabs>
       </div>
     </div>

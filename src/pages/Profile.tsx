@@ -5,10 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Upload, User, Save, Camera } from 'lucide-react';
+import { Upload, User, Save, Camera, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface ProfileData {
   full_name: string;
@@ -23,6 +25,43 @@ interface ProfileData {
   graduation_year: number;
   profile_photo_url: string;
 }
+
+// Calculate profile completion percentage
+const calculateProfileCompletion = (profile: ProfileData) => {
+  const fields = [
+    { key: 'full_name', label: 'Full Name', value: profile.full_name, required: true },
+    { key: 'email', label: 'Email', value: profile.email, required: true },
+    { key: 'phone', label: 'Phone Number', value: profile.phone, required: false },
+    { key: 'department', label: 'Department', value: profile.department, required: false },
+    { key: 'country', label: 'Country', value: profile.country, required: false },
+    { key: 'district', label: 'District/State', value: profile.district, required: false },
+    { key: 'workplace', label: 'Current Workplace', value: profile.workplace, required: false },
+    { key: 'bio', label: 'Biography', value: profile.bio, required: false },
+    { key: 'linkedin_url', label: 'LinkedIn Profile', value: profile.linkedin_url, required: false },
+    { key: 'profile_photo_url', label: 'Profile Photo', value: profile.profile_photo_url, required: false }
+  ];
+  
+  const filledFields = fields.filter(field => field.value && field.value.toString().trim() !== '');
+  const percentage = Math.round((filledFields.length / fields.length) * 100);
+  
+  return {
+    percentage,
+    filledFields: filledFields.length,
+    totalFields: fields.length,
+    fields: fields.map(field => ({
+      ...field,
+      filled: field.value && field.value.toString().trim() !== ''
+    }))
+  };
+};
+
+// Get completion status
+const getCompletionStatus = (percentage: number) => {
+  if (percentage >= 90) return { status: 'Excellent', color: 'text-green-600', bgColor: 'bg-green-100', icon: CheckCircle };
+  if (percentage >= 70) return { status: 'Good', color: 'text-blue-600', bgColor: 'bg-blue-100', icon: CheckCircle };
+  if (percentage >= 50) return { status: 'Moderate', color: 'text-yellow-600', bgColor: 'bg-yellow-100', icon: AlertCircle };
+  return { status: 'Incomplete', color: 'text-red-600', bgColor: 'bg-red-100', icon: AlertCircle };
+};
 
 export default function Profile() {
   const { user } = useAuth();
@@ -185,6 +224,63 @@ export default function Profile() {
       </section>
 
       <div className="max-w-4xl mx-auto px-6 py-8">
+        {/* Profile Completion Section */}
+        {(() => {
+          const completion = calculateProfileCompletion(profile);
+          const status = getCompletionStatus(completion.percentage);
+          const StatusIcon = status.icon;
+          
+          return (
+            <Card className="mb-8 border-2 border-primary/20">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <StatusIcon className={`h-5 w-5 mr-2 ${status.color}`} />
+                  Profile Completion
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <Progress value={completion.percentage} className="w-48" />
+                    <span className="text-2xl font-bold">{completion.percentage}%</span>
+                    <Badge className={`${status.color} ${status.bgColor} border-0`}>
+                      {status.status}
+                    </Badge>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {completion.filledFields} of {completion.totalFields} fields completed
+                  </div>
+                </div>
+                
+                {completion.percentage < 100 && (
+                  <div className="bg-muted/50 p-4 rounded-lg">
+                    <h4 className="font-medium mb-2 text-sm">Missing Information:</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {completion.fields
+                        .filter(field => !field.filled)
+                        .map(field => (
+                          <Badge key={field.key} variant="outline" className="text-xs">
+                            {field.label}
+                            {field.required && <span className="text-red-500 ml-1">*</span>}
+                          </Badge>
+                        ))
+                      }
+                    </div>
+                  </div>
+                )}
+                
+                {completion.percentage >= 80 && (
+                  <div className="bg-green-50 border border-green-200 p-3 rounded-lg">
+                    <p className="text-green-800 text-sm">
+                      🎉 Great job! Your profile is well-completed and will be more visible to other alumni.
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })()}
+
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Profile Photo Section */}
           <Card>

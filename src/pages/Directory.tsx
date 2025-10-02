@@ -3,9 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { Search, Users, MapPin, Building, GraduationCap, Mail, Phone, Linkedin } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { countries } from '@/data/countries';
 
 interface Profile {
   id: string;
@@ -30,10 +32,9 @@ export default function Directory() {
   const [districtFilter, setDistrictFilter] = useState('all');
   const [workplaceFilter, setWorkplaceFilter] = useState('all');
   const [loading, setLoading] = useState(true);
-  const { isApprovedMember } = useAuth();
+  const { user, isApprovedMember } = useAuth();
 
   const departments = Array.from(new Set(profiles.map(p => p.department).filter(Boolean)));
-  const countries = Array.from(new Set(profiles.map(p => p.country).filter(Boolean)));
 
   useEffect(() => {
     fetchProfiles();
@@ -122,6 +123,27 @@ export default function Directory() {
       </section>
 
       <div className="max-w-6xl mx-auto px-6 py-8">
+        {/* Login Prompt for Non-Users */}
+        {!user && (
+          <Card className="mb-6 bg-gradient-to-r from-blue-50 to-green-50 border-blue-200">
+            <CardContent className="p-6 text-center">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                Connect with Alumni
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Login to access full member contact information and connect with your fellow alumni from DU '89.
+              </p>
+              <div className="flex justify-center gap-4">
+                <a href="/auth">
+                  <Button>
+                    Login / Sign Up
+                  </Button>
+                </a>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Search and Filters */}
         <div className="mb-8 space-y-4">
           <div className="relative">
@@ -151,9 +173,9 @@ export default function Directory() {
               <SelectTrigger>
                 <SelectValue placeholder="Filter by Country" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent side="bottom" align="start" className="max-h-[200px]">
                 <SelectItem value="all">All Countries</SelectItem>
-                {Array.from(new Set(profiles.map(p => p.country).filter(Boolean))).map(country => (
+                {countries.map(country => (
                   <SelectItem key={country} value={country}>{country}</SelectItem>
                 ))}
               </SelectContent>
@@ -235,37 +257,57 @@ export default function Directory() {
                   </p>
                 )}
 
-                {/* Contact Information (only for approved members) */}
+                {/* Contact Information */}
                 <div className="pt-2 border-t border-border space-y-2">
-                  {profile.email && (
-                    <div className="flex items-center text-sm">
-                      <Mail className="h-4 w-4 mr-2 text-muted-foreground" />
-                      <a 
-                        href={`mailto:${profile.email}`}
-                        className="text-primary hover:underline line-clamp-1"
-                      >
-                        {profile.email}
-                      </a>
-                    </div>
-                  )}
+                  {user ? (
+                    // Show full contact info for logged-in users
+                    <>
+                      {profile.email && (
+                        <div className="flex items-center text-sm">
+                          <Mail className="h-4 w-4 mr-2 text-muted-foreground" />
+                          <a 
+                            href={`mailto:${profile.email}`}
+                            className="text-primary hover:underline line-clamp-1"
+                          >
+                            {profile.email}
+                          </a>
+                        </div>
+                      )}
 
-                  {profile.phone && (
-                    <div className="flex items-center text-sm">
-                      <Phone className="h-4 w-4 mr-2 text-muted-foreground" />
-                      <span className="line-clamp-1">{profile.phone}</span>
-                    </div>
-                  )}
+                      {profile.phone && (
+                        <div className="flex items-center text-sm">
+                          <Phone className="h-4 w-4 mr-2 text-muted-foreground" />
+                          <span className="line-clamp-1">{profile.phone}</span>
+                        </div>
+                      )}
 
-                  {profile.linkedin_url && (
-                    <div className="flex items-center text-sm">
-                      <Linkedin className="h-4 w-4 mr-2 text-muted-foreground" />
-                      <a 
-                        href={profile.linkedin_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline line-clamp-1"
-                      >
-                        LinkedIn Profile
+                      {profile.linkedin_url && (
+                        <div className="flex items-center text-sm">
+                          <Linkedin className="h-4 w-4 mr-2 text-muted-foreground" />
+                          <a 
+                            href={profile.linkedin_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline line-clamp-1"
+                          >
+                            LinkedIn Profile
+                          </a>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    // Show login prompt for contact info for non-logged-in users
+                    <div className="bg-gray-50 p-3 rounded-lg text-center">
+                      <div className="flex items-center justify-center text-sm text-gray-600 mb-2">
+                        <Mail className="h-4 w-4 mr-1" />
+                        <Phone className="h-4 w-4 mr-1" />
+                        <Linkedin className="h-4 w-4 mr-2" />
+                        <span>Contact Details Hidden</span>
+                      </div>
+                      <a href="/auth">
+                        <Button variant="outline" size="sm" className="text-xs">
+                          Login to View Contact Info
+                        </Button>
                       </a>
                     </div>
                   )}
