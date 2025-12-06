@@ -12,6 +12,21 @@ dist
 dist-ssr
 *.local
 
+# Next.js
+.next/
+out/
+
+# Environment variables
+.env.local
+.env*.local
+
+# Member import files (sensitive data)
+member-credentials-*.txt
+member-import-*.xlsx
+**/members.xlsx
+**/alumni-*.xlsx
+~$*.xlsx
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -1,0 +1,155 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is authenticated
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return isSignedIn() && (
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') ||
+        (exists(/databases/$(database)/documents/user_roles/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/user_roles/$(request.auth.uid)).data.role == 'admin')
+      );
+    }
+    
+    // Helper function to check if user is an approved member
+    function isApprovedMember() {
+      return isSignedIn() && 
+        exists(/databases/$(database)/documents/user_roles/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/user_roles/$(request.auth.uid)).data.role == 'approved_member';
+    }
+    
+    // Helper function to check if user is the owner
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    
+    // User roles collection - only admins can write, users can read their own
+    match /user_roles/{roleId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+    
+    // Users collection - for authentication and roles
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // Members collection
+    match /members/{memberId} {
+      // Admins can read all members
+      allow read: if isAdmin();
+      // Anyone can read approved members
+      allow read: if resource.data.status == 'approved';
+      // Users can read their own member record regardless of status
+      allow read: if isSignedIn() && (resource.data.user_id == request.auth.uid || memberId == request.auth.uid);
+      // Users can create their own member record (sign up)
+      allow create: if isSignedIn() && 
+                      (request.auth.uid == request.resource.data.user_id || memberId == request.auth.uid) &&
+                      request.resource.data.status == 'pending';
+      // Users can update their own member record (but not the status)
+      allow update: if isSignedIn() && (resource.data.user_id == request.auth.uid || memberId == request.auth.uid) && 
+                      request.resource.data.status == resource.data.status;
+      // Only admins can update member status or delete members
+      allow update, delete: if isAdmin();
+    }
+    
+    // Profiles collection
+    match /profiles/{userId} {
+      // Anyone can read approved member profiles
+      allow read: if exists(/databases/$(database)/documents/members/$(userId)) &&
+                    get(/databases/$(database)/documents/members/$(userId)).data.status == 'approved';
+      // Users can read their own profile regardless of member status
+      allow read: if isOwner(userId);
+      // Users can create and update their own profile
+      allow create, update: if isOwner(userId);
+      // Admins can read all profiles
+      allow read: if isAdmin();
+    }
+    
+    // News collection
+    match /news/{newsId} {
+      // Anyone can read published news
+      allow read: if resource.data.published == true;
+      // Admins can read all news (including drafts)
+      allow read: if isAdmin();
+      // Only admins can create, update, or delete news
+      // Validate that category is one of the allowed values
+      allow create: if isAdmin() && 
+                      request.resource.data.category in ['achievements', 'announcements', 'media_press', 'alumni_stories'];
+      allow update: if isAdmin() && 
+                      (!request.resource.data.keys().hasAny(['category']) || 
+                       request.resource.data.category in ['achievements', 'announcements', 'media_press', 'alumni_stories']);
+      allow delete: if isAdmin();
+    }
+    
+    // Events collection
+    match /events/{eventId} {
+      // Anyone can read published events (no auth required)
+      allow read: if true; // Allow all reads for now - will filter by published on client
+      // Only admins can create, update, or delete events
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // Event registrations collection
+    match /event_registrations/{registrationId} {
+      // Anyone authenticated can read their own registrations
+      allow read: if isSignedIn() && resource.data.user_id == request.auth.uid;
+      // Anyone authenticated can create registrations for themselves
+      allow create: if isSignedIn() && request.resource.data.user_id == request.auth.uid;
+      // Admins can read all registrations
+      allow read: if isAdmin();
+      // Admins can update or delete registrations
+      allow update, delete: if isAdmin();
+    }
+    
+    // Album types collection
+    match /album_types/{albumTypeId} {
+      allow read: if true; // Public read
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // Collections collection (belongs to album types)
+    match /collections/{collectionId} {
+      allow read: if true; // Public read
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // Photos collection (belongs to collections)
+    match /photos/{photoId} {
+      allow read: if true; // Public read
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // Blog posts collection
+    match /blog_posts/{postId} {
+      // Anyone can read approved and published posts
+      allow read: if resource.data.status == 'approved' && resource.data.published == true;
+      
+      // Authors can read their own posts regardless of status
+      allow read: if isOwner(resource.data.author_id);
+      
+      // Approved members can create blog posts (submitted as pending)
+      allow create: if isApprovedMember() && 
+                      request.auth.uid == request.resource.data.author_id &&
+                      request.resource.data.status == 'pending' &&
+                      request.resource.data.published == false;
+      
+      // Admins can read, update, and delete all posts
+      allow read, update, delete: if isAdmin();
+    }
+    
+    // Default deny all other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
