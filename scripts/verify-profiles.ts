@@ -23,7 +23,7 @@ async function verifyProfiles() {
   console.log(`Total profiles: ${snapshot.size}\n`);
   console.log('='.repeat(70));
   
-  snapshot.forEach((doc, index) => {
+  snapshot.docs.forEach((doc, index) => {
     const data = doc.data();
     console.log(`\n📋 Profile ${index + 1}:`);
     console.log(`   Email: ${data.email}`);

@@ -23,7 +23,7 @@ async function verifyMemberData() {
   // Get first 5 members
   const snapshot = await db.collection('members').limit(5).get();
   
-  snapshot.forEach((doc, index) => {
+  snapshot.docs.forEach((doc, index) => {
     const data = doc.data();
     console.log(`\n📋 Member ${index + 1}:`);
     console.log(`   Email: ${data.email || 'N/A'}`);
