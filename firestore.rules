@@ -147,6 +147,30 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
     
+    // Committees collection
+    match /committees/{committeeId} {
+      // Anyone can read committees
+      allow read: if true;
+      // Only admins can create, update, or delete committees
+      allow create, update, delete: if isAdmin();
+      
+      // Committee members subcollection
+      match /members/{memberId} {
+        // Anyone can read committee members
+        allow read: if true;
+        // Only admins can create, update, or delete committee members
+        allow create, update, delete: if isAdmin();
+      }
+    }
+    
+    // Contact messages collection
+    match /contact_messages/{messageId} {
+      // Anyone can create contact messages
+      allow create: if true;
+      // Only admins can read, update, or delete messages
+      allow read, update, delete: if isAdmin();
+    }
+    
     // Default deny all other collections
     match /{document=**} {
       allow read, write: if false;

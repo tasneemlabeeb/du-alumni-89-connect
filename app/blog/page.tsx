@@ -10,6 +10,7 @@ import { Calendar, User, Search, Loader2, FileText, Plus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import BlogSubmissionForm from "@/components/blog/BlogSubmissionForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import PageSubmenu from "@/components/layout/PageSubmenu";
 
 interface BlogPost {
   id: string;
@@ -77,11 +78,28 @@ export default function BlogPage() {
 
   return (
     <div className="min-h-screen">
+      {/* Spacing after main menu */}
+      <div className="h-8"></div>
+
+      {/* Page Submenu for Blog Categories - Before Banner */}
+      <PageSubmenu
+        items={[
+          { label: "Campus Memories", value: "campus-memories" },
+          { label: "Published Articles", value: "published-articles" },
+          { label: "Talent Hub", value: "talent-hub" },
+        ]}
+        activeValue={activeCategory}
+        onItemClick={setActiveCategory}
+      />
+
+      {/* Spacing between submenu and hero */}
+      <div className="h-8"></div>
+
       {/* Hero Section */}
       <div 
-        className="relative h-64 bg-cover bg-center flex items-center justify-center"
+        className="relative h-96 bg-cover bg-center flex items-center justify-center"
         style={{
-          backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(/home_page/du-campus.jpg)',
+          backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(/News%20&%20Events/Banner.jpg)',
         }}
       >
         <div className="text-center text-white">
@@ -162,7 +180,7 @@ export default function BlogPage() {
 
           {/* Category Heading */}
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-[#4A5568]">
+            <h2 className="text-3xl font-bold text-[#2e2c6d]">
               {getCategoryLabel(activeCategory)}
             </h2>
           </div>
@@ -197,7 +215,7 @@ export default function BlogPage() {
                         {/* Content */}
                         <div className="flex-1 flex flex-col">
                           <div className="mb-2">
-                            <h3 className="text-2xl font-bold text-[#4A5568] mb-2 hover:text-[#2D3748] transition-colors">
+                            <h3 className="text-2xl font-bold text-[#2e2c6d] mb-2 hover:text-[#252350] transition-colors">
                               {post.title}
                             </h3>
                           </div>

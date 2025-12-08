@@ -48,14 +48,16 @@ export async function GET(request: NextRequest) {
             .doc(member.user_id)
             .get();
 
+          const profileData = profileDoc.exists ? profileDoc.data() : null;
+
           return {
             id: member.id,
             user_id: member.user_id,
-            full_name: member.full_name,
-            email: member.email,
-            status: member.status,
-            created_at: member.created_at,
-            profile: profileDoc.exists ? profileDoc.data() : null,
+            full_name: member.full_name || '',
+            email: member.email || '',
+            status: member.status || 'pending',
+            created_at: member.created_at || new Date().toISOString(),
+            profile: profileData ? JSON.parse(JSON.stringify(profileData)) : null,
           };
         } catch (error) {
           console.error(
@@ -65,10 +67,10 @@ export async function GET(request: NextRequest) {
           return {
             id: member.id,
             user_id: member.user_id,
-            full_name: member.full_name,
-            email: member.email,
-            status: member.status,
-            created_at: member.created_at,
+            full_name: member.full_name || '',
+            email: member.email || '',
+            status: member.status || 'pending',
+            created_at: member.created_at || new Date().toISOString(),
             profile: null,
           };
         }
@@ -81,9 +83,19 @@ export async function GET(request: NextRequest) {
       'approved members with profiles'
     );
 
-    return NextResponse.json({
+    const response = {
       members: membersWithProfiles,
       count: membersWithProfiles.length,
+    };
+
+    // Ensure the response can be serialized to JSON
+    const jsonString = JSON.stringify(response);
+    
+    return new NextResponse(jsonString, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
   } catch (error: any) {
     console.error('[Members Public API] Error:', error);

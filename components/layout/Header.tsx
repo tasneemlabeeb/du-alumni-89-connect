@@ -53,7 +53,7 @@ export function Header() {
           </Link>
           <Button
             size="sm"
-            className="ml-1 rounded-full bg-purple-800 px-4 text-xs font-semibold text-white hover:bg-purple-900"
+            className="ml-1 rounded-full bg-[#2e2c6d] px-4 text-xs font-semibold text-white hover:bg-[#252350]"
             asChild
           >
             <Link href="/auth">Member Registration</Link>

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Calendar, MapPin, Search, Newspaper, CalendarDays, ChevronRight, Loader2, Cake, Phone, Mail } from "lucide-react";
 import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
+import PageSubmenu from "@/components/layout/PageSubmenu";
 
 interface NewsItem {
   id: string;
@@ -307,10 +308,22 @@ export default function NewsPage() {
 
   return (
     <div className="min-h-screen">
+      {/* Page Submenu for News Categories - Before Banner */}
+      <PageSubmenu
+        items={[
+          { label: "Achievements", value: "achievements" },
+          { label: "Announcements", value: "announcements" },
+          { label: "Media/ Press", value: "media_press" },
+          { label: "Alumni Stories", value: "alumni_stories" },
+        ]}
+        activeValue={newsCategory}
+        onItemClick={setNewsCategory}
+      />
+
       <div 
         className="relative h-[300px] md:h-[400px] bg-cover bg-center flex items-center justify-center"
         style={{ 
-          backgroundImage: "url('/home_page/Banner.jpg')",
+          backgroundImage: "url('/News & Events/Banner.jpg')",
           backgroundPosition: "center",
         }}
       >
@@ -322,7 +335,7 @@ export default function NewsPage() {
           <p className="text-lg md:text-xl max-w-3xl mx-auto">
             {activeTab === "events" 
               ? "From nostalgic reunions to meaningful initiatives, our events bring DUAAB 89 together - celebrating memories, friendships, and shared journeys."
-              : "Stay updated with the latest news and announcements from the DU Alumni '89 community."
+              : "Stay connected with the latest updates from DUAAB'89 —from achievements and announcements to stories that celebrate our batch spirit"
             }
           </p>
         </div>

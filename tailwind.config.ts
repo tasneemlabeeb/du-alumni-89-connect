@@ -17,6 +17,10 @@ export default {
         sans: ['Arial', 'Helvetica', 'sans-serif'],
       },
       colors: {
+        brand: {
+          DEFAULT: '#2e2c6d',
+          hover: '#252350',
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

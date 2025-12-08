@@ -10,6 +10,7 @@ import NewsEventManagement from "@/components/admin/NewsEventManagement";
 import BlogManagement from "@/components/admin/BlogManagement";
 import ContactManagement from "@/components/admin/ContactManagement";
 import GalleryManagement from "@/components/admin/GalleryManagement";
+import { AdminCommitteeManager } from "@/components/admin/AdminCommitteeManager";
 import { useEffect, useState } from "react";
 
 export default function AdminPage() {
@@ -117,12 +118,12 @@ export default function AdminPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-blue-900">Total Members</CardTitle>
-              <Users className="h-5 w-5 text-blue-600" />
+              <CardTitle className="text-sm font-medium text-[#2e2c6d]">Total Members</CardTitle>
+              <Users className="h-5 w-5 text-[#2e2c6d]" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-blue-900">{stats.totalMembers}</div>
-              <p className="text-xs text-blue-700 mt-1">All registered users</p>
+              <div className="text-3xl font-bold text-[#2e2c6d]">{stats.totalMembers}</div>
+              <p className="text-xs text-slate-700 mt-1">All registered users</p>
             </CardContent>
           </Card>
 
@@ -162,7 +163,7 @@ export default function AdminPage() {
 
         {/* Main Tabs */}
         <Tabs defaultValue="pending" className="w-full">
-          <TabsList className="grid w-full grid-cols-7 lg:w-auto">
+          <TabsList className="grid w-full grid-cols-8 lg:w-auto">
             <TabsTrigger value="pending" className="relative">
               Pending ({stats.pendingApprovals})
               {stats.pendingApprovals > 0 && (
@@ -170,6 +171,7 @@ export default function AdminPage() {
               )}
             </TabsTrigger>
             <TabsTrigger value="members">All Members</TabsTrigger>
+            <TabsTrigger value="committee">Committee</TabsTrigger>
             <TabsTrigger value="content">News & Events</TabsTrigger>
             <TabsTrigger value="blog">Blog Posts</TabsTrigger>
             <TabsTrigger value="gallery">Gallery</TabsTrigger>
@@ -183,6 +185,10 @@ export default function AdminPage() {
 
           <TabsContent value="members" className="space-y-4 mt-6">
             <MemberManagement />
+          </TabsContent>
+
+          <TabsContent value="committee" className="space-y-4 mt-6">
+            <AdminCommitteeManager />
           </TabsContent>
 
           <TabsContent value="content" className="space-y-4 mt-6">

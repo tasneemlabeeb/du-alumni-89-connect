@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import { collection, query, where, getDocs, orderBy, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 interface NewsItem {
   id: string;
@@ -30,6 +31,13 @@ interface Event {
 export default function HomePage() {
   const [latestNews, setLatestNews] = useState<NewsItem | null>(null);
   const [latestEvent, setLatestEvent] = useState<Event | null>(null);
+
+  // Scroll animations for each section
+  const announcementAnimation = useScrollAnimation();
+  const cardsAnimation = useScrollAnimation();
+  const welcomeAnimation = useScrollAnimation();
+  const factsAnimation = useScrollAnimation();
+  const appAnimation = useScrollAnimation();
 
   useEffect(() => {
     fetchLatestContent();
@@ -81,7 +89,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#f3f4ff] text-slate-900">
       {/* Hero */}
-      <section className="relative bg-slate-900 text-white">
+      <section className="relative bg-slate-900 text-white overflow-visible">
         <div className="absolute inset-0">
           {/* Hero background - Banner image */}
           <div 
@@ -91,7 +99,7 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-r from-slate-900/85 via-slate-900/70 to-slate-900/20" />
         </div>
 
-        <div className="relative mx-auto flex max-w-6xl flex-col justify-center px-4 py-16 md:px-6 md:py-24">
+        <div className="relative mx-auto flex max-w-6xl flex-col justify-center px-4 py-16 md:px-6 md:py-24 lg:py-32">
           <div className="max-w-xl space-y-4">
             <p className="text-sm font-semibold tracking-[0.2em] text-amber-300">
               DUAAB&apos;89
@@ -112,7 +120,14 @@ export default function HomePage() {
       </section>
 
       {/* Announcement Bar */}
-      <section className="border-b border-slate-200 bg-white">
+      <section 
+        ref={announcementAnimation.ref}
+        className={`border-b border-slate-200 bg-white transition-all duration-700 ${
+          announcementAnimation.isVisible 
+            ? 'opacity-100 translate-y-0' 
+            : 'opacity-0 translate-y-10'
+        }`}
+      >
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 text-xs md:flex-row md:items-center md:px-6">
           <div className="flex flex-1 items-center gap-2 rounded border border-slate-300 bg-slate-100 px-3 py-2">
             <span className="rounded bg-slate-900 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
@@ -135,8 +150,15 @@ export default function HomePage() {
       </section>
 
       {/* News, Gallery, Events cards */}
-      <section className="bg-[#f3f4ff]">
-        <div className="mx-auto grid max-w-6xl gap-4 px-4 py-10 md:grid-cols-3 md:px-6">
+      <section 
+        ref={cardsAnimation.ref}
+        className={`bg-[#f3f4ff] relative z-10 transition-all duration-700 delay-150 ${
+          cardsAnimation.isVisible 
+            ? 'opacity-100 translate-y-0' 
+            : 'opacity-0 translate-y-10'
+        }`}
+      >
+        <div className="mx-auto grid max-w-6xl gap-4 px-4 py-10 md:grid-cols-3 md:px-6 md:py-12">
           <InfoCard
             title="Latest News"
             description={latestNews?.content?.substring(0, 100) || "Stay updated with our latest news and announcements"}
@@ -161,7 +183,14 @@ export default function HomePage() {
       </section>
 
       {/* Welcome section */}
-      <section className="bg-gradient-to-r from-[#eef0ff] to-[#f7f7ff]">
+      <section 
+        ref={welcomeAnimation.ref}
+        className={`bg-gradient-to-r from-[#eef0ff] to-[#f7f7ff] transition-all duration-700 delay-300 ${
+          welcomeAnimation.isVisible 
+            ? 'opacity-100 translate-y-0' 
+            : 'opacity-0 translate-y-10'
+        }`}
+      >
         <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 md:grid-cols-[1.1fr,1fr] md:px-6">
           <div className="relative h-64 w-full overflow-hidden rounded-xl md:h-72">
             <Image
@@ -174,7 +203,7 @@ export default function HomePage() {
           </div>
 
           <div className="space-y-3">
-            <p className="text-xs font-semibold tracking-[0.25em] text-purple-700 uppercase">
+            <p className="text-xs font-semibold tracking-[0.25em] text-[#2e2c6d] uppercase">
               Welcome to
             </p>
             <h2 className="text-2xl font-bold leading-tight text-slate-900 md:text-3xl">
@@ -193,7 +222,14 @@ export default function HomePage() {
       </section>
 
       {/* Facts section */}
-      <section className="bg-[#f3f4ff]">
+      <section 
+        ref={factsAnimation.ref}
+        className={`bg-[#f3f4ff] overflow-visible transition-all duration-700 delay-[450ms] ${
+          factsAnimation.isVisible 
+            ? 'opacity-100 translate-y-0' 
+            : 'opacity-0 translate-y-10'
+        }`}
+      >
         <div className="mx-auto max-w-6xl px-4 py-12 md:px-6">
           <h3 className="mb-6 text-lg font-bold text-slate-900">
             Few facts about our Alumni
@@ -219,38 +255,72 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* App section */}
-      <section className="bg-gradient-to-r from-[#e8eaff] to-[#f0f2ff] overflow-hidden">
-        <div className="mx-auto flex max-w-6xl flex-col items-end gap-8 px-4 pt-12 md:flex-row md:items-end md:px-6 md:pt-16">
-          {/* Phone mockup - positioned at bottom */}
-          <div className="flex flex-1 justify-center items-end">
-            <div className="relative h-80 w-48 md:h-96 md:w-56">
-              <Image
-                src="/home_page/Mobile app.png"
-                alt="DUAAB'89 Mobile App"
-                fill
-                className="object-contain object-bottom drop-shadow-2xl"
+      {/* Mobile App Section */}
+      <section 
+        ref={appAnimation.ref}
+        className={`bg-[#e8f1ff] relative overflow-visible transition-all duration-700 delay-[600ms] ${
+          appAnimation.isVisible 
+            ? 'opacity-100 translate-y-0' 
+            : 'opacity-0 translate-y-10'
+        }`}
+      >
+        <div className="mx-auto max-w-6xl px-4 py-16 lg:py-24">
+          <div className="flex flex-col lg:flex-row items-center gap-12">
+            {/* Left side - Phone mockup */}
+            <div className="flex-shrink-0">
+              <img
+                src="/home_page/New UI.png"
+                alt="DUAAB'89 App Screenshot"
+                className="w-full h-auto object-contain max-w-[280px] lg:max-w-[380px] mx-auto"
               />
             </div>
-          </div>
 
-          {/* Text block */}
-          <div className="flex-1 space-y-4 max-w-xl pb-8 md:pb-12">
-            <h4 className="text-xs font-semibold uppercase tracking-[0.25em] text-purple-700">
-              DUAAB&apos;89 SMART ALUMNI PLATFORM
-            </h4>
-            <h3 className="text-2xl font-bold leading-tight text-slate-900 md:text-3xl">
-              Welcome to DUAAB Smart Alumni Platform
-            </h3>
-            <p className="text-sm leading-relaxed text-slate-700 md:text-base">
-              Welcome to DUAAB Smart Alumni Platform – a digital haven designed exclusively for
-              the brilliant minds and diverse talents that make up our esteemed alumni community.
-              This platform is not just a virtual space; it&apos;s a dynamic hub where connections
-              are forged, ideas are shared, and collaborations thrive.
-            </p>
-            <Button className="mt-6 rounded-full border-2 border-purple-800 bg-transparent px-6 py-2.5 text-sm font-semibold text-purple-800 hover:bg-purple-800 hover:text-white transition-all duration-300">
-              Get our app
-            </Button>
+            {/* Right side - Text content (vertically centered) */}
+            <div className="flex-1 space-y-4 flex flex-col justify-center">
+              <p className="text-xs font-semibold tracking-[0.25em] text-[#2e2c6d] uppercase">
+                DUAAB&apos;89 Smart Alumni Platform
+              </p>
+              <h2 className="text-3xl lg:text-4xl font-bold leading-tight text-[#2e2c6d]">
+                Welcome to DUAAB&apos;89 App
+              </h2>
+              <div className="space-y-3 text-sm lg:text-base leading-relaxed text-slate-700">
+                <p>
+                  Welcome to DUAAB Smart Alumni Platform – a digital haven designed exclusively 
+                  for the brilliant minds and diverse talents that make up our esteemed alumni community. 
+                  This platform is not just a virtual space; it is a dynamic hub where connections are forged, 
+                  ideas are shared, and collaborations thrive.
+                </p>
+                <p>
+                  Stay connected with your batchmates, discover exciting opportunities, and be part of a 
+                  community that celebrates your achievements and supports your journey forward.
+                </p>
+              </div>
+              <div className="pt-2">
+                <Button 
+                  className="inline-flex items-center gap-2 rounded-full px-6 py-3 font-medium bg-[#222a5a] text-white hover:shadow-lg hover:scale-105 transition"
+                  asChild
+                >
+                  <Link href="/auth">
+                    Get our app
+                    <svg 
+                      width="20" 
+                      height="20" 
+                      viewBox="0 0 20 20" 
+                      fill="none" 
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path 
+                        d="M7.5 15L12.5 10L7.5 5" 
+                        stroke="currentColor" 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </Link>
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -315,7 +385,7 @@ type StatCardProps = {
 function StatCard({ value, label }: StatCardProps) {
   return (
     <div className="flex h-24 flex-col justify-center rounded-lg bg-white px-4 shadow-sm">
-      <p className="text-xl font-bold text-purple-800">{value}</p>
+      <p className="text-xl font-bold text-[#2e2c6d]">{value}</p>
       <p className="mt-1 text-[11px] font-medium text-slate-600">{label}</p>
     </div>
   )
