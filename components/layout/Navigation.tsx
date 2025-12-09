@@ -416,18 +416,125 @@ export function Navigation() {
           <div className="bg-[#2e2c6d]">
             <div className="px-4 py-2 space-y-1">
               {navItems.map(({ path, label }) => (
-                <Link
-                  key={path}
-                  href={path}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`block px-4 py-2 text-sm font-medium rounded transition-colors ${
-                    pathname === path
-                      ? 'bg-[#252350] text-white'
-                      : 'text-white hover:bg-[#252350]'
-                  }`}
-                >
-                  {label}
-                </Link>
+                <div key={path}>
+                  <Link
+                    href={path}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`block px-4 py-2 text-sm font-medium rounded transition-colors ${
+                      pathname === path
+                        ? 'bg-[#252350] text-white'
+                        : 'text-white hover:bg-[#252350]'
+                    }`}
+                  >
+                    {label}
+                  </Link>
+                  
+                  {/* About Submenu */}
+                  {path === '/about' && showAboutSubmenu && (
+                    <div className="ml-4 mt-1 space-y-1">
+                      {aboutSubmenuItems.map((item) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="block px-3 py-1.5 text-xs text-gray-300 hover:text-white hover:bg-[#252350] rounded transition-colors"
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Blog Submenu */}
+                  {path === '/blog' && showBlogSubmenu && (
+                    <div className="ml-4 mt-1 space-y-1">
+                      {blogSubmenuItems.map((item) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="block px-3 py-1.5 text-xs text-gray-300 hover:text-white hover:bg-[#252350] rounded transition-colors"
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Committee Submenu */}
+                  {path === '/committee' && showCommitteeSubmenu && (
+                    <div className="ml-4 mt-1 space-y-1">
+                      {committeeSubmenuItems.map((item) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="block px-3 py-1.5 text-xs text-gray-300 hover:text-white hover:bg-[#252350] rounded transition-colors"
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* News & Events Submenu */}
+                  {path === '/news' && showNewsSubmenu && (
+                    <div className="ml-4 mt-1 space-y-1">
+                      {newsSubmenuItems.map((item) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="block px-3 py-1.5 text-xs text-gray-300 hover:text-white hover:bg-[#252350] rounded transition-colors"
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Gallery Submenu */}
+                  {path === '/gallery' && showGallerySubmenu && (
+                    <div className="ml-4 mt-1 space-y-1">
+                      {gallerySubmenuItems.map((item) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="block px-3 py-1.5 text-xs text-gray-300 hover:text-white hover:bg-[#252350] rounded transition-colors"
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Members Submenu */}
+                  {path === '/directory' && showMembersSubmenu && (
+                    <div className="ml-4 mt-1 space-y-1">
+                      {membersSubmenuItems.map((item) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="block px-3 py-1.5 text-xs text-gray-300 hover:text-white hover:bg-[#252350] rounded transition-colors"
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                      {membersSubmenuItemsSecondRow.map((item) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="block px-3 py-1.5 text-xs text-gray-300 hover:text-white hover:bg-[#252350] rounded transition-colors"
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ))}
               
               {isAdmin && (
