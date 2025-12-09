@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
+import { FileText } from "lucide-react";
 
 export default function AboutPage() {
   return (
@@ -33,66 +34,132 @@ export default function AboutPage() {
       </div>
 
       <div className="container mx-auto px-4 py-12 max-w-5xl">
-        <div className="prose prose-slate max-w-none">
-          <p className="text-slate-700 leading-relaxed mb-4">
-            Dhaka University Alumni Association, Batch 1989 (DUAAB'89) was founded in 2013. The birthplace of this initiative was the 
-            Department of Geology, at the heart of the Science Faculty's iconic Curzon Hall, in the office of Professor Zillur Rahman, a few 
-            visionary luminaries who dared to dream.
-          </p>
+        {/* Journey Section */}
+        <div id="journey" className="scroll-mt-40 mb-12">
+          <div className="prose prose-slate max-w-none">
+            <p className="text-slate-700 leading-relaxed mb-4">
+              Dhaka University Alumni Association, Batch 1989 (DUAAB'89) was founded in 2013. The birthplace of this initiative was the 
+              Department of Geology, at the heart of the Science Faculty's iconic Curzon Hall, in the office of Professor Zillur Rahman, a few 
+              visionary luminaries who dared to dream.
+            </p>
 
-          <p className="text-slate-700 leading-relaxed mb-4">
-            Among those pioneers were Badal (Soil Science), Ujjal (Zoology), Mehedi Masud (Pharmacy), Tomal (Mathematics), Saif (Microbiology), 
-            Nipon (Zoology), Jalal (History), Bashir (Chemistry), Shahid (Mathematics), Mintu (Applied Physics), Selim (Soil Science), Tupu 
-            (Applied Chemistry), Neo Neel (Applied Chemistry), Rafsan (Microbiology), and Shariful (Soil Science).
-          </p>
+            <p className="text-slate-700 leading-relaxed mb-4">
+              Among those pioneers were Badal (Soil Science), Ujjal (Zoology), Mehedi Masud (Pharmacy), Tomal (Mathematics), Saif (Microbiology), 
+              Nipon (Zoology), Jalal (History), Bashir (Chemistry), Shahid (Mathematics), Mintu (Applied Physics), Selim (Soil Science), Tupu 
+              (Applied Chemistry), Neo Neel (Applied Chemistry), Rafsan (Microbiology), and Shariful (Soil Science).
+            </p>
 
-          <p className="text-slate-700 leading-relaxed mb-4">
-            Soon after, on February 1, 2013, the first Family Day was organized at Curzon Hall — a vibrant beginning that brought together 
-            alumni and their families. The Executive Committee was formed, with Abul Fazal Mir-Badel elected as President and Mehedi Masud as 
-            General Secretary.
-          </p>
+            <p className="text-slate-700 leading-relaxed mb-4">
+              Soon after, on February 1, 2013, the first Family Day was organized at Curzon Hall — a vibrant beginning that brought together 
+              alumni and their families. The Executive Committee was formed, with Abul Fazal Mir-Badel elected as President and Mehedi Masud as 
+              General Secretary.
+            </p>
 
-          <p className="text-slate-700 leading-relaxed mb-6">
-            But the journey of DUAAB '89 was far from over. In 2014, preparations for the second Family Day, a new chapter began. Based on a 
-            proposal from Faruk (Political Science) and discussions among Badel, Ujjal, and Tomal, a significant decision was made — DUAAB '89 
-            would expand its reach to include alumni from the Arts and Commerce faculties, becoming a broader and more inclusive alumni platform.
-          </p>
+            <p className="text-slate-700 leading-relaxed mb-6">
+              But the journey of DUAAB '89 was far from over. In 2014, preparations for the second Family Day, a new chapter began. Based on a 
+              proposal from Faruk (Political Science) and discussions among Badel, Ujjal, and Tomal, a significant decision was made — DUAAB '89 
+              would expand its reach to include alumni from the Arts and Commerce faculties, becoming a broader and more inclusive alumni platform.
+            </p>
 
-          <p className="text-slate-700 leading-relaxed mb-6">
-            From that vision, DUAAB '89 evolved into more than just a batch association — it became a symbol of shared memories, unity, and the 
-            enduring legacy of excellence.
-          </p>
+            <p className="text-slate-700 leading-relaxed mb-6">
+              From that vision, DUAAB '89 evolved into more than just a batch association — it became a symbol of shared memories, unity, and the 
+              enduring legacy of excellence.
+            </p>
 
-          <div className="grid grid-cols-3 gap-4 my-8">
-            <div className="aspect-video bg-slate-200 rounded-lg overflow-hidden">
-              <Image 
-                src="/images/About Us/Abou-Us-01.jpg"
-                alt="DUAAB'89 Event Photo 1"
-                width={400}
-                height={300}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="aspect-video bg-slate-200 rounded-lg overflow-hidden">
-              <Image 
-                src="/images/About Us/Abou-Us-02.jpg"
-                alt="DUAAB'89 Event Photo 2"
-                width={400}
-                height={300}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="aspect-video bg-slate-200 rounded-lg overflow-hidden">
-              <Image 
-                src="/images/About Us/Abou-Us-03.jpg"
-                alt="DUAAB'89 Event Photo 3"
-                width={400}
-                height={300}
-                className="w-full h-full object-cover"
-              />
+            <div className="grid grid-cols-3 gap-4 my-8">
+              <div className="aspect-video bg-slate-200 rounded-lg overflow-hidden">
+                <Image 
+                  src="/images/About Us/Abou-Us-01.jpg"
+                  alt="DUAAB'89 Event Photo 1"
+                  width={400}
+                  height={300}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="aspect-video bg-slate-200 rounded-lg overflow-hidden">
+                <Image 
+                  src="/images/About Us/Abou-Us-02.jpg"
+                  alt="DUAAB'89 Event Photo 2"
+                  width={400}
+                  height={300}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="aspect-video bg-slate-200 rounded-lg overflow-hidden">
+                <Image 
+                  src="/images/About Us/Abou-Us-03.jpg"
+                  alt="DUAAB'89 Event Photo 3"
+                  width={400}
+                  height={300}
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </div>
           </div>
+        </div>
 
+        {/* Constitution Section */}
+        <div id="constitution" className="scroll-mt-40 mb-12">
+          <h2 className="text-3xl font-bold text-[#2e2c6d] mb-6">Constitution</h2>
+          <div className="prose prose-slate max-w-none">
+            <p className="text-slate-700 leading-relaxed mb-6">
+              The constitution of DUAAB'89 defines the structure, objectives, and governance framework of our association. 
+              It outlines the rights and responsibilities of members, the organization of the executive committee, and the 
+              guiding principles that unite us in our mission to serve the alumni community.
+            </p>
+            <a 
+              href="/Constitution-of-DUAAB-89.pdf" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#2e2c6d] text-white rounded-lg hover:bg-[#252350] transition-colors no-underline"
+            >
+              <FileText size={20} />
+              <span className="font-semibold">View Constitution (PDF)</span>
+            </a>
+          </div>
+        </div>
+
+        {/* Legacy of DU Section */}
+        <div id="legacy" className="scroll-mt-40 mb-12">
+          <h2 className="text-3xl font-bold text-[#2e2c6d] mb-6">Legacy of DU</h2>
+          <div className="prose prose-slate max-w-none">
+            <p className="text-slate-700 leading-relaxed mb-4">
+              The University of Dhaka, established in 1921, stands as the premier institution of higher education in Bangladesh.
+            </p>
+          </div>
+        </div>
+
+        {/* Mission & Vision Section */}
+        <div id="mission" className="scroll-mt-40 mb-12">
+          <h2 className="text-3xl font-bold text-[#2e2c6d] mb-6">Mission & Vision</h2>
+          <div className="prose prose-slate max-w-none">
+            <p className="text-slate-700 leading-relaxed mb-4">
+              Our mission is to foster lifelong connections among alumni and contribute to society.
+            </p>
+          </div>
+        </div>
+
+        {/* Messages Section */}
+        <div id="messages" className="scroll-mt-40 mb-12">
+          <h2 className="text-3xl font-bold text-[#2e2c6d] mb-6">Messages</h2>
+          <div className="prose prose-slate max-w-none">
+            <p className="text-slate-700 leading-relaxed mb-4">
+              Messages from our leadership and distinguished members.
+            </p>
+          </div>
+        </div>
+
+        {/* Automation Journey Section */}
+        <div id="automation" className="scroll-mt-40 mb-12">
+          <h2 className="text-3xl font-bold text-[#2e2c6d] mb-6">Automation Journey</h2>
+          <div className="prose prose-slate max-w-none">
+            <p className="text-slate-700 leading-relaxed mb-4">
+              Our journey towards digital transformation and modernization.
+            </p>
+          </div>
+        </div>
+
+        <div className="prose prose-slate max-w-none">
           <div className="flex flex-wrap gap-3 my-8">
             <Button variant="outline" className="rounded-full px-6">
               Journey of DUAAB'89

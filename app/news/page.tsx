@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar, MapPin, Search, Newspaper, CalendarDays, ChevronRight, Loader2, Cake, Phone, Mail } from "lucide-react";
 import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
-import PageSubmenu from "@/components/layout/PageSubmenu";
 
 interface NewsItem {
   id: string;
@@ -46,9 +46,11 @@ interface Member {
 }
 
 export default function NewsPage() {
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<"news" | "events">("events");
   const [eventFilter, setEventFilter] = useState<"upcoming" | "past">("upcoming");
-  const [newsCategory, setNewsCategory] = useState<string>("all");
+  const categoryFromUrl = searchParams.get('category') || 'all';
+  const [newsCategory, setNewsCategory] = useState<string>(categoryFromUrl);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [news, setNews] = useState<NewsItem[]>([]);
@@ -56,6 +58,11 @@ export default function NewsPage() {
   const [selectedBirthdayDate, setSelectedBirthdayDate] = useState<string>("");
   const [birthdayMembers, setBirthdayMembers] = useState<Member[]>([]);
   const [upcomingBirthdays, setUpcomingBirthdays] = useState<Member[]>([]);
+
+  useEffect(() => {
+    const category = searchParams.get('category') || 'all';
+    setNewsCategory(category);
+  }, [searchParams]);
 
   useEffect(() => {
     fetchData();
@@ -308,18 +315,6 @@ export default function NewsPage() {
 
   return (
     <div className="min-h-screen">
-      {/* Page Submenu for News Categories - Before Banner */}
-      <PageSubmenu
-        items={[
-          { label: "Achievements", value: "achievements" },
-          { label: "Announcements", value: "announcements" },
-          { label: "Media/ Press", value: "media_press" },
-          { label: "Alumni Stories", value: "alumni_stories" },
-        ]}
-        activeValue={newsCategory}
-        onItemClick={setNewsCategory}
-      />
-
       <div 
         className="relative h-[300px] md:h-[400px] bg-cover bg-center flex items-center justify-center"
         style={{ 

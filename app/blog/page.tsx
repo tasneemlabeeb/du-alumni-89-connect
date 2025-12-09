@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +11,6 @@ import { Calendar, User, Search, Loader2, FileText, Plus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import BlogSubmissionForm from "@/components/blog/BlogSubmissionForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import PageSubmenu from "@/components/layout/PageSubmenu";
 
 interface BlogPost {
   id: string;
@@ -26,11 +26,18 @@ interface BlogPost {
 
 export default function BlogPage() {
   const { user, isApprovedMember } = useAuth();
+  const searchParams = useSearchParams();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeCategory, setActiveCategory] = useState('campus-memories');
+  const categoryFromUrl = searchParams.get('category') || 'campus-memories';
+  const [activeCategory, setActiveCategory] = useState(categoryFromUrl);
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
+
+  useEffect(() => {
+    const category = searchParams.get('category') || 'campus-memories';
+    setActiveCategory(category);
+  }, [searchParams]);
 
   useEffect(() => {
     fetchPosts();
@@ -78,23 +85,6 @@ export default function BlogPage() {
 
   return (
     <div className="min-h-screen">
-      {/* Spacing after main menu */}
-      <div className="h-8"></div>
-
-      {/* Page Submenu for Blog Categories - Before Banner */}
-      <PageSubmenu
-        items={[
-          { label: "Campus Memories", value: "campus-memories" },
-          { label: "Published Articles", value: "published-articles" },
-          { label: "Talent Hub", value: "talent-hub" },
-        ]}
-        activeValue={activeCategory}
-        onItemClick={setActiveCategory}
-      />
-
-      {/* Spacing between submenu and hero */}
-      <div className="h-8"></div>
-
       {/* Hero Section */}
       <div 
         className="relative h-96 bg-cover bg-center flex items-center justify-center"

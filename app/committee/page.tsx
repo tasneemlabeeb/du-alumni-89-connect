@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Input } from '@/components/ui/input';
@@ -28,11 +29,28 @@ interface Committee {
 }
 
 export default function CommitteePage() {
+  const searchParams = useSearchParams();
   const [committees, setCommittees] = useState<Committee[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'current' | 'previous' | 'honours'>('current');
   const [selectedCommittee, setSelectedCommittee] = useState<string | null>(null);
+
+  // Handle hash-based navigation from submenu
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash === 'current' || hash === 'previous' || hash === 'honours') {
+        setActiveTab(hash);
+        const first = committees.find(c => c.type === hash);
+        setSelectedCommittee(first?.id || null);
+      }
+    };
+
+    handleHashChange(); // Check on mount
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, [committees]);
 
   useEffect(() => {
     fetchCommittees();

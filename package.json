@@ -10,6 +10,7 @@
     "deploy:rules": "firebase deploy --only firestore,storage",
     "deploy:storage": "firebase deploy --only storage",
     "deploy:firestore": "firebase deploy --only firestore",
+    "create-admin": "tsx scripts/create-admin.ts",
     "create-test-user": "tsx scripts/create-test-user.ts",
     "test-storage": "tsx scripts/test-storage-upload.ts",
     "upload-test": "tsx scripts/upload-test-file.ts",

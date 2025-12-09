@@ -180,7 +180,7 @@ export default function GalleryPage() {
                 onClick={() => setGalleryMode('photo')}
                 className={`flex items-center justify-center gap-2 px-6 py-4 transition-colors rounded-tl-lg ${
                   galleryMode === 'photo'
-                    ? 'bg-indigo-700 text-white'
+                    ? 'bg-[#2e2c6d] text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -191,7 +191,7 @@ export default function GalleryPage() {
                 onClick={() => setGalleryMode('video')}
                 className={`flex items-center justify-center gap-2 px-6 py-4 transition-colors rounded-tr-lg ${
                   galleryMode === 'video'
-                    ? 'bg-indigo-700 text-white'
+                    ? 'bg-[#2e2c6d] text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -209,7 +209,7 @@ export default function GalleryPage() {
                       onClick={() => setSelectedAlbumType('all')}
                       className={`px-4 py-3 font-medium transition-colors border-r border-gray-200 last:border-r-0 ${
                         selectedAlbumType === 'all'
-                          ? 'bg-indigo-600 text-white'
+                          ? 'bg-[#2e2c6d] text-white'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
@@ -221,7 +221,7 @@ export default function GalleryPage() {
                         onClick={() => setSelectedAlbumType(type.id)}
                         className={`px-4 py-3 font-medium transition-colors border-r border-gray-200 last:border-r-0 ${
                           selectedAlbumType === type.id
-                            ? 'bg-indigo-600 text-white'
+                            ? 'bg-[#2e2c6d] text-white'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         }`}
                       >
@@ -255,7 +255,7 @@ export default function GalleryPage() {
                         <div className="text-center">
                           <Button 
                             onClick={loadMorePhotos}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-2"
+                            className="bg-[#2e2c6d] hover:bg-[#252357] text-white px-8 py-2"
                           >
                             Load More Photos
                           </Button>
@@ -270,7 +270,7 @@ export default function GalleryPage() {
                         {filteredCollections.map((collection) => (
                           <div key={collection.id} className="bg-white border-2 border-gray-200 rounded-lg overflow-hidden">
                             {/* Collection Header */}
-                            <div className="bg-indigo-600 text-white px-4 py-2 text-center font-semibold">
+                            <div className="bg-[#2e2c6d] text-white px-4 py-2 text-center font-semibold">
                               {collection.name}
                             </div>
                             
@@ -305,7 +305,7 @@ export default function GalleryPage() {
                       {/* Expanded Photos - Show below all collections */}
                       {expandedCollection && collectionPhotos[expandedCollection] && (
                         <div className="mt-8 mb-6">
-                          <div className="border-t-4 border-indigo-600 mb-6"></div>
+                          <div className="border-t-4 border-[#2e2c6d] mb-6"></div>
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                             {collectionPhotos[expandedCollection].map((photo) => (
                             <div

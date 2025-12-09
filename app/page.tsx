@@ -214,7 +214,7 @@ export default function HomePage() {
               share memories, support one another, and strengthen the bond as we
               move forward together into the future.
             </p>
-            <Button className="mt-4 rounded-full bg-purple-800 px-5 py-2 text-xs font-semibold text-white hover:bg-purple-900" asChild>
+            <Button className="mt-4 rounded-full bg-[#2e2c6d] px-5 py-2 text-xs font-semibold text-white hover:bg-[#252357]" asChild>
               <Link href="/about">Read our story</Link>
             </Button>
           </div>
