@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,7 +45,7 @@ interface Member {
   birthday?: string; // Format: MM-DD or YYYY-MM-DD
 }
 
-export default function NewsPage() {
+function NewsContent() {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<"news" | "events">("events");
   const [eventFilter, setEventFilter] = useState<"upcoming" | "past">("upcoming");
@@ -711,5 +711,17 @@ export default function NewsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function NewsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    }>
+      <NewsContent />
+    </Suspense>
   );
 }

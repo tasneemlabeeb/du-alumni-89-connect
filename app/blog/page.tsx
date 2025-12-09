@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,7 @@ interface BlogPost {
   created_at: string;
 }
 
-export default function BlogPage() {
+function BlogContent() {
   const { user, isApprovedMember } = useAuth();
   const searchParams = useSearchParams();
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -287,5 +287,17 @@ export default function BlogPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function BlogPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    }>
+      <BlogContent />
+    </Suspense>
   );
 }

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { adminDb } from '@/lib/firebase/admin';
 
+export const dynamic = 'force-dynamic';
+
 // Public endpoint to fetch photos by collection
 export async function GET(request: NextRequest) {
   try {

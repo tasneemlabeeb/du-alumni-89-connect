@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
@@ -28,7 +28,7 @@ interface Committee {
   pdfURL?: string; // For previous committees
 }
 
-export default function CommitteePage() {
+function CommitteeContent() {
   const searchParams = useSearchParams();
   const [committees, setCommittees] = useState<Committee[]>([]);
   const [loading, setLoading] = useState(true);
@@ -325,5 +325,17 @@ export default function CommitteePage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function CommitteePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    }>
+      <CommitteeContent />
+    </Suspense>
   );
 }
