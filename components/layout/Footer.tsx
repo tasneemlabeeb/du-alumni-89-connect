@@ -1,95 +1,96 @@
 'use client';
 
 import Link from 'next/link';
-import { Facebook, Twitter, Linkedin, Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Facebook } from 'lucide-react';
 
 export function Footer() {
   return (
-    <footer className="border-t border-border mt-auto" style={{ backgroundColor: '#2f2c6d' }}>
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Logo Column */}
-          <div className="flex items-center justify-center h-full">
-            <Link href="/" className="w-full h-full flex items-center justify-center">
-              {/* DU Logo - Maximum Size */}
-              <img 
-                src="/du-logo.png" 
-                alt="Dhaka University Logo" 
-                className="w-full h-48 object-contain hover:scale-105 transition-transform duration-300"
-              />
-            </Link>
-          </div>
+    <footer className="mt-auto px-4 pb-4">
+      <div 
+        className="max-w-7xl mx-auto rounded-[32px] overflow-hidden shadow-2xl" 
+        style={{ backgroundColor: '#2e2c6c' }}
+      >
+        <div className="px-8 py-12 md:px-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 items-start">
+            {/* Logo Column */}
+            <div className="flex justify-center md:justify-start">
+              <Link href="/">
+                <img 
+                  src="/images/About Us/DUAAB logo WHite.png" 
+                  alt="DUAAB'89 Logo" 
+                  className="h-40 w-auto"
+                />
+              </Link>
+            </div>
 
-          {/* About Column */}
-          <div>
-            <h3 className="font-semibold text-white mb-4">About</h3>
-            <div className="space-y-2">
-              <Link href="/about" className="block text-white/90 hover:text-white transition-colors text-sm">
-                Our Story
-              </Link>
-              <Link href="/news" className="block text-white/90 hover:text-white transition-colors text-sm">
-                News & Events
-              </Link>
-              <Link href="/gallery" className="block text-white/90 hover:text-white transition-colors text-sm">
-                Gallery
-              </Link>
-              <Link href="/directory" className="block text-white/90 hover:text-white transition-colors text-sm">
-                Alumni Directory
-              </Link>
+            {/* Contact Info */}
+            <div className="space-y-6 text-white">
+              <div className="flex items-start space-x-3">
+                <MapPin className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                <span className="text-[13px] leading-relaxed">House-11, Road-33, Gulshan-1, Dhaka</span>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <Send className="h-4 w-4 flex-shrink-0" />
+                <span className="text-[13px]">info@duaab89.org</span>
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <Phone className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                <div className="space-y-1 text-[13px]">
+                  <p>President: 01716913621</p>
+                  <p>Secretary: 01785055555</p>
+                  <p>Treasurer: 01711162365</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick links */}
+            <div className="text-white md:pl-8">
+              <h3 className="font-medium text-[15px] mb-6">Quick links</h3>
+              <div className="space-y-3 text-[13px]">
+                <Link href="/" className="block hover:text-white/70 transition-colors">
+                  Home
+                </Link>
+                <Link href="/about" className="block hover:text-white/70 transition-colors">
+                  About
+                </Link>
+                <Link href="/directory" className="block hover:text-white/70 transition-colors">
+                  Members
+                </Link>
+              </div>
+            </div>
+
+            {/* Account & Social */}
+            <div className="text-white md:pl-8">
+              <div className="space-y-3 text-[13px] mb-8">
+                <Link href="/auth" className="block hover:text-white/70 transition-colors">
+                  Login
+                </Link>
+                <Link href="/auth?mode=signup" className="block hover:text-white/70 transition-colors">
+                  Register
+                </Link>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <span className="text-[13px]">Follow us</span>
+                <a 
+                  href="https://facebook.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="bg-[#3b5998] p-1 rounded hover:bg-[#3b5998]/80 transition-colors"
+                >
+                  <Facebook className="h-4 w-4 fill-white text-white" />
+                </a>
+              </div>
             </div>
           </div>
 
-          {/* Services Column */}
-          <div>
-            <h3 className="font-semibold text-white mb-4">Services</h3>
-            <div className="space-y-2">
-              <Link href="/networking" className="block text-white/90 hover:text-white transition-colors text-sm">
-                Networking
-              </Link>
-              <Link href="/mentorship" className="block text-white/90 hover:text-white transition-colors text-sm">
-                Mentorship
-              </Link>
-              <Link href="/career" className="block text-white/90 hover:text-white transition-colors text-sm">
-                Career Support
-              </Link>
-              <Link href="/events" className="block text-white/90 hover:text-white transition-colors text-sm">
-                Events
-              </Link>
-            </div>
+          <div className="border-t border-white/10 mt-12 pt-8 text-center">
+            <p className="text-white/40 text-[11px]">
+              © {new Date().getFullYear()} DU Alumni Association Batch &apos;89. All rights reserved.
+            </p>
           </div>
-
-          {/* Contact Info */}
-          <div>
-            <h3 className="font-semibold text-white mb-4">Contact Us</h3>
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2 text-white/90">
-                <Mail size={16} />
-                <span className="text-sm">contact@dualumni89.com</span>
-              </div>
-              <div className="flex items-center space-x-2 text-white/90">
-                <Phone size={16} />
-                <span className="text-sm">+880 123 456 7890</span>
-              </div>
-              <div className="flex items-center space-x-2 text-white/90">
-                <MapPin size={16} />
-                <span className="text-sm">Dhaka University, Bangladesh</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="border-t border-white/20 mt-8 pt-8 text-center">
-          <p className="text-white/80 text-sm">
-            © 2025 DU Alumni '89. All rights reserved. Built by{' '}
-            <a 
-              href="https://www.oryon-x.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-white hover:text-white/80 underline transition-colors"
-            >
-              Oryon X
-            </a>
-          </p>
         </div>
       </div>
     </footer>

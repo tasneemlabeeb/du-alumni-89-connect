@@ -77,7 +77,10 @@ export default function GalleryPage() {
               <Button asChild size="lg" className="bg-indigo-900 hover:bg-indigo-800">
                 <Link href="/auth">Log In</Link>
               </Button>
-              <Button asChild size="lg" variant="outline">
+              <Button asChild size="lg" variant="outline" className="border-indigo-900 text-indigo-900 hover:bg-indigo-50">
+                <Link href="/auth?mode=signup">Register</Link>
+              </Button>
+              <Button asChild size="lg" variant="ghost">
                 <Link href="/">Return to Home</Link>
               </Button>
             </div>

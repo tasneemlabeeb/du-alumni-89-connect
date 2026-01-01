@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { collection, query, where, getDocs, orderBy, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
@@ -31,17 +33,59 @@ interface Event {
 export default function HomePage() {
   const [latestNews, setLatestNews] = useState<NewsItem | null>(null);
   const [latestEvent, setLatestEvent] = useState<Event | null>(null);
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
   // Scroll animations for each section
   const announcementAnimation = useScrollAnimation();
   const cardsAnimation = useScrollAnimation();
   const welcomeAnimation = useScrollAnimation();
   const factsAnimation = useScrollAnimation();
+  const newsletterAnimation = useScrollAnimation();
   const appAnimation = useScrollAnimation();
 
   useEffect(() => {
     fetchLatestContent();
   }, []);
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Success!",
+          description: data.message || "You have been subscribed to our newsletter.",
+        });
+        setEmail("");
+      } else {
+        toast({
+          title: "Error",
+          description: data.error || "Something went wrong. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to subscribe. Please check your connection.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const fetchLatestContent = async () => {
     try {
@@ -113,7 +157,7 @@ export default function HomePage() {
               Connection. Contribution. Collaboration.
             </p>
             <Button className="mt-6 w-fit rounded-full bg-amber-400 px-6 py-2 text-xs font-semibold text-slate-900 hover:bg-amber-300" asChild>
-              <Link href="/auth">Join the network</Link>
+              <Link href="/auth?mode=signup">Join the network</Link>
             </Button>
           </div>
         </div>
@@ -301,7 +345,7 @@ export default function HomePage() {
                   className="inline-flex items-center gap-2 rounded-full px-6 py-3 font-medium bg-[#222a5a] text-white hover:shadow-lg hover:scale-105 transition"
                   asChild
                 >
-                  <Link href="/auth">
+                  <Link href="/auth?mode=signup">
                     Get our app
                     <svg 
                       width="20" 
@@ -326,8 +370,58 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* White space before footer */}
-      <div className="bg-white h-16 md:h-24"></div>
+      {/* Newsletter Section */}
+      <section 
+        ref={newsletterAnimation.ref}
+        className={`bg-white py-10 border-t border-slate-100 transition-all duration-700 delay-500 ${
+          newsletterAnimation.isVisible 
+            ? 'opacity-100 translate-y-0' 
+            : 'opacity-0 translate-y-10'
+        }`}
+      >
+        <div className="mx-auto max-w-6xl px-4 md:px-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#2e2c6d]">
+              Subscribe to our newsletter
+            </h2>
+            
+            <form onSubmit={handleSubscribe} className="flex w-full max-w-2xl items-center">
+              <Input
+                type="email"
+                placeholder="Your email address"
+                className="h-14 flex-1 rounded-none rounded-l-md border-slate-200 bg-white px-6 text-base focus-visible:ring-0 focus-visible:ring-offset-0"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <Button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="h-14 rounded-none rounded-r-md bg-[#2e2c6d] px-10 text-white hover:bg-[#252357]"
+              >
+                {isSubmitting ? (
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                ) : (
+                  <svg 
+                    viewBox="0 0 24 24" 
+                    width="24" 
+                    height="24" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    fill="none" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    className="text-white"
+                  >
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
+                )}
+              </Button>
+            </form>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }

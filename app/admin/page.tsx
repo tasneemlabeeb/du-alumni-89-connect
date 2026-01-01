@@ -12,6 +12,7 @@ import BlogManagement from "@/components/admin/BlogManagement";
 import ContactManagement from "@/components/admin/ContactManagement";
 import GalleryManagement from "@/components/admin/GalleryManagement";
 import { AdminCommitteeManager } from "@/components/admin/AdminCommitteeManager";
+import { SubscriberManagement } from "@/components/admin/SubscriberManagement";
 import { useEffect, useState } from "react";
 
 export default function AdminPage() {
@@ -171,7 +172,7 @@ export default function AdminPage() {
 
         {/* Main Tabs */}
         <Tabs defaultValue="pending" className="w-full">
-          <TabsList className="grid w-full grid-cols-8 lg:w-auto">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 lg:grid-cols-9 lg:w-auto h-auto">
             <TabsTrigger value="pending" className="relative">
               Pending ({stats.pendingApprovals})
               {stats.pendingApprovals > 0 && (
@@ -184,6 +185,7 @@ export default function AdminPage() {
             <TabsTrigger value="blog">Blog Posts</TabsTrigger>
             <TabsTrigger value="gallery">Gallery</TabsTrigger>
             <TabsTrigger value="contact">Contact</TabsTrigger>
+            <TabsTrigger value="subscribers">Subscribers</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
@@ -213,6 +215,10 @@ export default function AdminPage() {
 
           <TabsContent value="contact" className="space-y-4 mt-6">
             <ContactManagement />
+          </TabsContent>
+
+          <TabsContent value="subscribers" className="space-y-4 mt-6">
+            <SubscriberManagement />
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-4 mt-6">

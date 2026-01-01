@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,12 +32,49 @@ const pinSchema = z.object({
 });
 
 export default function Auth() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    }>
+      <AuthContent />
+    </Suspense>
+  );
+}
+
+function AuthContent() {
   const { user, signIn, signUp, signOut, isAdmin, loading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   
+  // Get initial tab from query param
+  const mode = searchParams.get('mode');
+  const emailParam = searchParams.get('email') || '';
+  const initialTab = mode === 'signin' ? 'signin' : 'signup';
+  
+  const [activeTab, setActiveTab] = useState(initialTab);
+  
+  // Update active tab when mode query param changes
+  useEffect(() => {
+    if (mode === 'signup') {
+      setActiveTab('signup');
+    } else if (mode === 'signin') {
+      setActiveTab('signin');
+    }
+  }, [mode]);
+
+  // Update form email when email query param changes
+  useEffect(() => {
+    if (emailParam) {
+      setSignInForm(prev => ({ ...prev, email: emailParam }));
+      setSignUpForm(prev => ({ ...prev, email: emailParam }));
+    }
+  }, [emailParam]);
+
   // Form states
-  const [signInForm, setSignInForm] = useState({ email: '', password: '' });
-  const [signUpForm, setSignUpForm] = useState({ email: '', password: '', fullName: '', phoneNumber: '' });
+  const [signInForm, setSignInForm] = useState({ email: emailParam, password: '' });
+  const [signUpForm, setSignUpForm] = useState({ email: emailParam, password: '', fullName: '', phoneNumber: '' });
   const [resetForm, setResetForm] = useState({ email: '' });
   const [pinForm, setPinForm] = useState({ pin: '' });
   const [signInLoading, setSignInLoading] = useState(false);
@@ -388,141 +425,21 @@ export default function Auth() {
           <p className="text-gray-600 mt-2">Connect with your fellow alumni</p>
         </div>
 
-        <Tabs defaultValue="signin" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="signin">
-              <LogIn className="h-4 w-4 mr-2" />
-              Sign In
-            </TabsTrigger>
             <TabsTrigger value="signup">
               <UserPlus className="h-4 w-4 mr-2" />
               Sign Up
+            </TabsTrigger>
+            <TabsTrigger value="signin">
+              <LogIn className="h-4 w-4 mr-2" />
+              Sign In
             </TabsTrigger>
             <TabsTrigger value="reset">
               <KeyRound className="h-4 w-4 mr-2" />
               Reset
             </TabsTrigger>
           </TabsList>
-
-          {/* Sign In Tab */}
-          <TabsContent value="signin">
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  {showPinStep ? 'Verification Code' : 'Welcome Back'}
-                </CardTitle>
-                <CardDescription>
-                  {showPinStep 
-                    ? 'Enter the 4-digit code sent to your email'
-                    : 'Sign in to your account to continue'}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {!showPinStep ? (
-                  <form onSubmit={handleSignIn} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="signin-email">Email</Label>
-                      <Input
-                        id="signin-email"
-                        type="email"
-                        placeholder="your@email.com"
-                        value={signInForm.email}
-                        onChange={(e) => setSignInForm({ ...signInForm, email: e.target.value })}
-                        required
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="signin-password">Password</Label>
-                      <Input
-                        id="signin-password"
-                        type="password"
-                        placeholder="••••••••"
-                        value={signInForm.password}
-                        onChange={(e) => setSignInForm({ ...signInForm, password: e.target.value })}
-                        required
-                      />
-                    </div>
-
-                    <Button type="submit" className="w-full" disabled={signInLoading}>
-                      {signInLoading ? 'Verifying...' : 'Continue'}
-                    </Button>
-                  </form>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                      <div className="flex items-start gap-3">
-                        <ShieldCheck className="h-5 w-5 text-blue-600 mt-0.5" />
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-blue-900">
-                            Two-Step Verification
-                          </p>
-                          <p className="text-sm text-blue-700 mt-1">
-                            We've sent a 4-digit code to <span className="font-medium">{tempCredentials.email}</span>
-                          </p>
-                          {devPin && (
-                            <p className="text-xs text-blue-600 mt-2 font-mono bg-blue-100 p-2 rounded">
-                              Development Mode: {devPin}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    <form onSubmit={handlePinVerification} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="pin">Verification Code</Label>
-                        <Input
-                          id="pin"
-                          type="text"
-                          placeholder="Enter 4-digit code"
-                          value={pinForm.pin}
-                          onChange={(e) => {
-                            const value = e.target.value.replace(/\D/g, '').slice(0, 4);
-                            setPinForm({ pin: value });
-                          }}
-                          maxLength={4}
-                          className="text-center text-2xl tracking-widest font-mono"
-                          required
-                          autoFocus
-                        />
-                      </div>
-
-                      <Button type="submit" className="w-full" disabled={pinLoading}>
-                        {pinLoading ? 'Verifying...' : 'Verify & Sign In'}
-                      </Button>
-                    </form>
-
-                    <div className="space-y-2 pt-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full"
-                        onClick={handleResendPin}
-                        disabled={pinLoading}
-                      >
-                        Resend Code
-                      </Button>
-                      
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        className="w-full"
-                        onClick={handleBackToLogin}
-                      >
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        Back to Login
-                      </Button>
-                    </div>
-
-                    <p className="text-xs text-center text-muted-foreground">
-                      Code expires in 5 minutes
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           {/* Sign Up Tab */}
           <TabsContent value="signup">
@@ -660,6 +577,126 @@ export default function Auth() {
                       >
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Back to Sign Up
+                      </Button>
+                    </div>
+
+                    <p className="text-xs text-center text-muted-foreground">
+                      Code expires in 5 minutes
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Sign In Tab */}
+          <TabsContent value="signin">
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  {showPinStep ? 'Verification Code' : 'Welcome Back'}
+                </CardTitle>
+                <CardDescription>
+                  {showPinStep 
+                    ? 'Enter the 4-digit code sent to your email'
+                    : 'Sign in to your account to continue'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {!showPinStep ? (
+                  <form onSubmit={handleSignIn} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="signin-email">Email</Label>
+                      <Input
+                        id="signin-email"
+                        type="email"
+                        placeholder="your@email.com"
+                        value={signInForm.email}
+                        onChange={(e) => setSignInForm({ ...signInForm, email: e.target.value })}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="signin-password">Password</Label>
+                      <Input
+                        id="signin-password"
+                        type="password"
+                        placeholder="••••••••"
+                        value={signInForm.password}
+                        onChange={(e) => setSignInForm({ ...signInForm, password: e.target.value })}
+                        required
+                      />
+                    </div>
+
+                    <Button type="submit" className="w-full" disabled={signInLoading}>
+                      {signInLoading ? 'Verifying...' : 'Continue'}
+                    </Button>
+                  </form>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                      <div className="flex items-start gap-3">
+                        <ShieldCheck className="h-5 w-5 text-blue-600 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-blue-900">
+                            Two-Step Verification
+                          </p>
+                          <p className="text-sm text-blue-700 mt-1">
+                            We've sent a 4-digit code to <span className="font-medium">{tempCredentials.email}</span>
+                          </p>
+                          {devPin && (
+                            <p className="text-xs text-blue-600 mt-2 font-mono bg-blue-100 p-2 rounded">
+                              Development Mode: {devPin}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <form onSubmit={handlePinVerification} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="pin">Verification Code</Label>
+                        <Input
+                          id="pin"
+                          type="text"
+                          placeholder="Enter 4-digit code"
+                          value={pinForm.pin}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, '').slice(0, 4);
+                            setPinForm({ pin: value });
+                          }}
+                          maxLength={4}
+                          className="text-center text-2xl tracking-widest font-mono"
+                          required
+                          autoFocus
+                        />
+                      </div>
+
+                      <Button type="submit" className="w-full" disabled={pinLoading}>
+                        {pinLoading ? 'Verifying...' : 'Verify & Sign In'}
+                      </Button>
+                    </form>
+
+                    <div className="space-y-2 pt-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full"
+                        onClick={handleResendPin}
+                        disabled={pinLoading}
+                      >
+                        Resend Code
+                      </Button>
+                      
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="w-full"
+                        onClick={handleBackToLogin}
+                      >
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back to Login
                       </Button>
                     </div>
 

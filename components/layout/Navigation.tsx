@@ -15,6 +15,11 @@ import {
   Search,
   User
 } from 'lucide-react';
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useState } from 'react';
 
 export function Navigation() {
@@ -58,10 +63,26 @@ export function Navigation() {
   ];
 
   const newsSubmenuItems = [
-    { label: "Achievements", href: "/news?category=achievements" },
-    { label: "Announcements", href: "/news?category=announcements" },
-    { label: "Media/ Press", href: "/news?category=media_press" },
-    { label: "Alumni Stories", href: "/news?category=alumni_stories" },
+    { 
+      label: "Achievements", 
+      href: "/news?category=achievements",
+      description: "Celebrating the milestones and successes of our batch members."
+    },
+    { 
+      label: "Announcements", 
+      href: "/news?category=announcements",
+      description: "Official updates and important notices for the DUAAB'89 community."
+    },
+    { 
+      label: "Media/ Press", 
+      href: "/news?category=media_press",
+      description: "News coverage and media mentions related to our batch and its activities."
+    },
+    { 
+      label: "Alumni Stories", 
+      href: "/news?category=alumni_stories",
+      description: "Personal journeys, memories, and inspiring stories from our fellow alumni."
+    },
   ];
 
   const gallerySubmenuItems = [
@@ -191,7 +212,7 @@ export function Navigation() {
                       Logout
                     </Button>
                   ) : (
-                    <Link href="/auth">
+                    <Link href="/auth?mode=signup">
                       <Button 
                         size="sm"
                         className="bg-[#2e2c6d] hover:bg-[#252350] text-white rounded-full px-4 lg:px-6 whitespace-nowrap"
@@ -293,12 +314,19 @@ export function Navigation() {
                 <div className="flex items-center gap-1">
                   {newsSubmenuItems.map((item, index) => (
                     <div key={item.href} className="flex items-center">
-                      <Link
-                        href={item.href}
-                        className="text-sm font-normal text-[#4A5568] hover:text-[#2D3748] transition-colors whitespace-nowrap px-2"
-                      >
-                        {item.label}
-                      </Link>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Link
+                            href={item.href}
+                            className="text-sm font-normal text-[#4A5568] hover:text-[#2D3748] transition-colors whitespace-nowrap px-2"
+                          >
+                            {item.label}
+                          </Link>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" className="bg-[#2e2c6d] text-white border-none">
+                          <p className="text-xs">{item.description}</p>
+                        </TooltipContent>
+                      </Tooltip>
                       {index < newsSubmenuItems.length - 1 && (
                         <span className="text-[#4A5568]">|</span>
                       )}
@@ -576,7 +604,7 @@ export function Navigation() {
                     Logout
                   </Button>
                 ) : (
-                  <Link href="/auth" onClick={() => setMobileMenuOpen(false)}>
+                  <Link href="/auth?mode=signup" onClick={() => setMobileMenuOpen(false)}>
                     <Button className="w-full bg-[#2e2c6d] hover:bg-[#252350] text-white">
                       Member Registration
                     </Button>

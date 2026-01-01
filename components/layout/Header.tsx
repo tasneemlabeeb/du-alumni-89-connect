@@ -56,7 +56,7 @@ export function Header() {
             className="ml-1 rounded-full bg-[#2e2c6d] px-4 text-xs font-semibold text-white hover:bg-[#252350]"
             asChild
           >
-            <Link href="/auth">Member Registration</Link>
+            <Link href="/auth?mode=signup">Member Registration</Link>
           </Button>
         </nav>
       </div>

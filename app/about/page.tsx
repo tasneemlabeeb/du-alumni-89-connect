@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { FileText } from "lucide-react";
+import JoinNetworkForm from "@/components/about/JoinNetworkForm";
 
 export default function AboutPage() {
   return (
@@ -37,31 +37,31 @@ export default function AboutPage() {
         {/* Journey Section */}
         <div id="journey" className="scroll-mt-40 mb-12">
           <div className="prose prose-slate max-w-none">
-            <p className="text-slate-700 leading-relaxed mb-4">
+            <p className="text-slate-700 leading-relaxed mb-4 text-justify">
               Dhaka University Alumni Association, Batch 1989 (DUAAB'89) was founded in 2013. The birthplace of this initiative was the 
               Department of Geology, at the heart of the Science Faculty's iconic Curzon Hall, in the office of Professor Zillur Rahman, a few 
               visionary luminaries who dared to dream.
             </p>
 
-            <p className="text-slate-700 leading-relaxed mb-4">
+            <p className="text-slate-700 leading-relaxed mb-4 text-justify">
               Among those pioneers were Badal (Soil Science), Ujjal (Zoology), Mehedi Masud (Pharmacy), Tomal (Mathematics), Saif (Microbiology), 
               Nipon (Zoology), Jalal (History), Bashir (Chemistry), Shahid (Mathematics), Mintu (Applied Physics), Selim (Soil Science), Tupu 
               (Applied Chemistry), Neo Neel (Applied Chemistry), Rafsan (Microbiology), and Shariful (Soil Science).
             </p>
 
-            <p className="text-slate-700 leading-relaxed mb-4">
+            <p className="text-slate-700 leading-relaxed mb-4 text-justify">
               Soon after, on February 1, 2013, the first Family Day was organized at Curzon Hall — a vibrant beginning that brought together 
               alumni and their families. The Executive Committee was formed, with Abul Fazal Mir-Badel elected as President and Mehedi Masud as 
               General Secretary.
             </p>
 
-            <p className="text-slate-700 leading-relaxed mb-6">
+            <p className="text-slate-700 leading-relaxed mb-6 text-justify">
               But the journey of DUAAB '89 was far from over. In 2014, preparations for the second Family Day, a new chapter began. Based on a 
               proposal from Faruk (Political Science) and discussions among Badel, Ujjal, and Tomal, a significant decision was made — DUAAB '89 
               would expand its reach to include alumni from the Arts and Commerce faculties, becoming a broader and more inclusive alumni platform.
             </p>
 
-            <p className="text-slate-700 leading-relaxed mb-6">
+            <p className="text-slate-700 leading-relaxed mb-6 text-justify">
               From that vision, DUAAB '89 evolved into more than just a batch association — it became a symbol of shared memories, unity, and the 
               enduring legacy of excellence.
             </p>
@@ -102,7 +102,7 @@ export default function AboutPage() {
         <div id="constitution" className="scroll-mt-40 mb-12">
           <h2 className="text-3xl font-bold text-[#2e2c6d] mb-6">Constitution</h2>
           <div className="prose prose-slate max-w-none">
-            <p className="text-slate-700 leading-relaxed mb-6">
+            <p className="text-slate-700 leading-relaxed mb-6 text-justify">
               The constitution of DUAAB'89 defines the structure, objectives, and governance framework of our association. 
               It outlines the rights and responsibilities of members, the organization of the executive committee, and the 
               guiding principles that unite us in our mission to serve the alumni community.
@@ -123,7 +123,7 @@ export default function AboutPage() {
         <div id="legacy" className="scroll-mt-40 mb-12">
           <h2 className="text-3xl font-bold text-[#2e2c6d] mb-6">Legacy of DU</h2>
           <div className="prose prose-slate max-w-none">
-            <p className="text-slate-700 leading-relaxed mb-4">
+            <p className="text-slate-700 leading-relaxed mb-4 text-justify">
               The University of Dhaka, established in 1921, stands as the premier institution of higher education in Bangladesh.
             </p>
           </div>
@@ -133,7 +133,7 @@ export default function AboutPage() {
         <div id="mission" className="scroll-mt-40 mb-12">
           <h2 className="text-3xl font-bold text-[#2e2c6d] mb-6">Mission & Vision</h2>
           <div className="prose prose-slate max-w-none">
-            <p className="text-slate-700 leading-relaxed mb-4">
+            <p className="text-slate-700 leading-relaxed mb-4 text-justify">
               Our mission is to foster lifelong connections among alumni and contribute to society.
             </p>
           </div>
@@ -143,7 +143,7 @@ export default function AboutPage() {
         <div id="messages" className="scroll-mt-40 mb-12">
           <h2 className="text-3xl font-bold text-[#2e2c6d] mb-6">Messages</h2>
           <div className="prose prose-slate max-w-none">
-            <p className="text-slate-700 leading-relaxed mb-4">
+            <p className="text-slate-700 leading-relaxed mb-4 text-justify">
               Messages from our leadership and distinguished members.
             </p>
           </div>
@@ -153,7 +153,7 @@ export default function AboutPage() {
         <div id="automation" className="scroll-mt-40 mb-12">
           <h2 className="text-3xl font-bold text-[#2e2c6d] mb-6">Automation Journey</h2>
           <div className="prose prose-slate max-w-none">
-            <p className="text-slate-700 leading-relaxed mb-4">
+            <p className="text-slate-700 leading-relaxed mb-4 text-justify">
               Our journey towards digital transformation and modernization.
             </p>
           </div>
@@ -190,16 +190,7 @@ export default function AboutPage() {
             <div className="container mx-auto px-8">
               <div className="max-w-2xl">
                 <h2 className="text-2xl font-bold text-slate-800 mb-6">Join the network</h2>
-                <div className="flex gap-3">
-                  <Input 
-                    type="email" 
-                    placeholder="Email address" 
-                    className="bg-white h-12"
-                  />
-                  <Button className="px-8 h-12 bg-indigo-900 hover:bg-indigo-800">
-                    Register →
-                  </Button>
-                </div>
+                <JoinNetworkForm />
               </div>
             </div>
           </div>
