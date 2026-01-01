@@ -13,6 +13,12 @@ export interface ProfileData {
   contactNo: string;
   bloodGroup: string;
   email: string;
+  dateOfBirth?: string;
+  homeDistrict?: string;
+  
+  // Privacy Settings
+  showBirthdayToMembers?: boolean;
+  showMobileToMembers?: boolean;
   
   // Professional & Marital Information
   profession: string;
@@ -94,6 +100,10 @@ export function useProfile() {
           faculty: '',
           contactNo: '',
           bloodGroup: '',
+          dateOfBirth: '',
+          homeDistrict: '',
+          showBirthdayToMembers: true,
+          showMobileToMembers: true,
           profession: '',
           maritalStatus: '',
           children: '',

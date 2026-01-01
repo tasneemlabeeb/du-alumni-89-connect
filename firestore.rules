@@ -171,6 +171,13 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
     
+    // Auth PINs collection - for two-step verification
+    match /auth_pins/{email} {
+      // PINs can only be managed through server-side API routes
+      // No direct client access allowed for security
+      allow read, write: if false;
+    }
+    
     // Default deny all other collections
     match /{document=**} {
       allow read, write: if false;

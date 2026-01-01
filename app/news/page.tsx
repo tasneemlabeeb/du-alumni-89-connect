@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar, MapPin, Search, Newspaper, CalendarDays, ChevronRight, Loader2, Cake, Phone, Mail } from "lucide-react";
@@ -325,7 +326,7 @@ function NewsContent() {
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-900/80 to-indigo-800/70"></div>
         <div className="relative z-10 text-center text-white px-4">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            {activeTab === "events" ? "Events" : "News"}
+            News & Events
           </h1>
           <p className="text-lg md:text-xl max-w-3xl mx-auto">
             {activeTab === "events" 
@@ -549,6 +550,126 @@ function NewsContent() {
                 </Button>
               </div>
             )}
+
+            {/* Birthday Calendar Section - Only in Events Tab */}
+            <div className="mt-12 pt-12 border-t border-gray-200">
+              <div className="mb-8">
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">Birthday Calendar</h2>
+                <p className="text-gray-600">
+                  Celebrate with your DU Alumni 89 batch mates on their special day
+                </p>
+              </div>
+
+              {/* Date Picker */}
+              <div className="relative mb-6">
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <Input
+                  type="date"
+                  value={selectedBirthdayDate}
+                  onChange={(e) => setSelectedBirthdayDate(e.target.value)}
+                  className="pl-10 h-12 bg-gray-50 border-gray-300"
+                />
+              </div>
+
+              {/* Birthdays on Selected Date */}
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <Cake className="h-5 w-5 text-indigo-700" />
+                  Birthdays on {selectedBirthdayDate ? new Date(selectedBirthdayDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : 'Selected Date'}
+                </h3>
+
+                {birthdayMembers.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Cake className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      No birthdays on this date
+                    </h3>
+                    <p className="text-gray-600">
+                      Try selecting a different date
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {birthdayMembers.map((member) => (
+                      <div
+                        key={member.id}
+                        className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+                      >
+                        <div className="flex items-start gap-4">
+                          <div className="flex-shrink-0">
+                            <div className="w-14 h-14 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-semibold text-lg">
+                              {member.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="text-lg font-semibold text-gray-900 mb-1">{member.name}</h4>
+                            <p className="text-sm text-gray-600 mb-3">
+                              <span className="font-medium">Department:</span> {member.department || 'CSE'}
+                            </p>
+                            {member.email && (
+                              <div className="flex items-center text-gray-700 mb-2">
+                                <Mail className="h-4 w-4 mr-2" />
+                                <span className="text-sm">{member.email}</span>
+                              </div>
+                            )}
+                            {member.phone && (
+                              <div className="flex items-center text-gray-700">
+                                <Phone className="h-4 w-4 mr-2" />
+                                <span className="text-sm">{member.phone}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Upcoming Birthdays of This Month */}
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <Cake className="h-5 w-5 text-indigo-700" />
+                  Upcoming Birthdays of This Month
+                </h3>
+
+                {upcomingBirthdays.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Cake className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      No upcoming birthdays this month
+                    </h3>
+                    <p className="text-gray-600">
+                      Check back later for updates
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid md:grid-cols-3 gap-4">
+                    {upcomingBirthdays.map((member: any) => (
+                      <div
+                        key={member.id}
+                        className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                      >
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-semibold">
+                            {member.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900 text-sm">{member.name}</h4>
+                            <p className="text-xs text-gray-600">
+                              {member.birthdayDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            </p>
+                          </div>
+                        </div>
+                        <p className="text-sm text-gray-600">
+                          {member.department || 'CSE'}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
 
@@ -569,146 +690,43 @@ function NewsContent() {
                 key={item.id}
                 className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
               >
+                {item.featured_image_url && (
+                  <div className="w-full h-48 mb-4 rounded-lg overflow-hidden">
+                    <img
+                      src={item.featured_image_url}
+                      alt={item.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
                   {item.title}
                 </h3>
                 {item.summary && (
-                  <p className="text-gray-600 mb-4">{item.summary}</p>
+                  <p className="text-gray-600 mb-4 line-clamp-3">{item.summary}</p>
                 )}
-                <div className="flex items-center text-gray-700">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  <span className="text-sm">
-                    {new Date(item.created_at).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </span>
+                <div className="flex items-center justify-between mt-4">
+                  <div className="flex items-center text-gray-700">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    <span className="text-sm">
+                      {new Date(item.created_at).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </span>
+                  </div>
+                  <Button asChild className="bg-indigo-700 hover:bg-indigo-800">
+                    <Link href={`/news/${item.id}`}>
+                      Read More
+                      <ChevronRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
                 </div>
               </div>
             ))}
           </div>
         )}
-
-        {/* Birthday Calendar Section */}
-        <div className="mt-12 pt-12 border-t border-gray-200">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Birthday Calendar</h2>
-            <p className="text-gray-600">
-              Celebrate with your DU Alumni 89 batch mates on their special day
-            </p>
-          </div>
-
-          {/* Date Picker */}
-          <div className="relative mb-6">
-            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <Input
-              type="date"
-              value={selectedBirthdayDate}
-              onChange={(e) => setSelectedBirthdayDate(e.target.value)}
-              className="pl-10 h-12 bg-gray-50 border-gray-300"
-            />
-          </div>
-
-          {/* Birthdays on Selected Date */}
-          <div className="mb-8">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Cake className="h-5 w-5 text-indigo-700" />
-              Birthdays on {selectedBirthdayDate ? new Date(selectedBirthdayDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : 'Selected Date'}
-            </h3>
-
-            {birthdayMembers.length === 0 ? (
-              <div className="text-center py-12">
-                <Cake className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  No birthdays on this date
-                </h3>
-                <p className="text-gray-600">
-                  Try selecting a different date
-                </p>
-              </div>
-            ) : (
-              <div className="grid md:grid-cols-2 gap-4">
-                {birthdayMembers.map((member) => (
-                  <div
-                    key={member.id}
-                    className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0">
-                        <div className="w-14 h-14 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-semibold text-lg">
-                          {member.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
-                        </div>
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="text-lg font-semibold text-gray-900 mb-1">{member.name}</h4>
-                        <p className="text-sm text-gray-600 mb-3">
-                          <span className="font-medium">Department:</span> {member.department || 'CSE'}
-                        </p>
-                        {member.email && (
-                          <div className="flex items-center text-gray-700 mb-2">
-                            <Mail className="h-4 w-4 mr-2" />
-                            <span className="text-sm">{member.email}</span>
-                          </div>
-                        )}
-                        {member.phone && (
-                          <div className="flex items-center text-gray-700">
-                            <Phone className="h-4 w-4 mr-2" />
-                            <span className="text-sm">{member.phone}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Upcoming Birthdays of This Month */}
-          <div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Cake className="h-5 w-5 text-indigo-700" />
-              Upcoming Birthdays of This Month
-            </h3>
-
-            {upcomingBirthdays.length === 0 ? (
-              <div className="text-center py-12">
-                <Cake className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  No upcoming birthdays this month
-                </h3>
-                <p className="text-gray-600">
-                  Check back later for updates
-                </p>
-              </div>
-            ) : (
-              <div className="grid md:grid-cols-3 gap-4">
-                {upcomingBirthdays.map((member: any) => (
-                  <div
-                    key={member.id}
-                    className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-semibold">
-                        {member.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-gray-900 text-sm">{member.name}</h4>
-                        <p className="text-xs text-gray-600">
-                          {member.birthdayDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                        </p>
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      {member.department || 'CSE'}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
       </div>
     </div>
   );

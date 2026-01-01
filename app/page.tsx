@@ -158,26 +158,27 @@ export default function HomePage() {
             : 'opacity-0 translate-y-10'
         }`}
       >
-        <div className="mx-auto grid max-w-6xl gap-4 px-4 py-10 md:grid-cols-3 md:px-6 md:py-12">
+        <div className="mx-auto grid max-w-6xl gap-4 px-4 py-10 md:grid-cols-2 lg:grid-cols-3 md:px-6 md:py-12">
           <InfoCard
             title="Latest News"
             description={latestNews?.content?.substring(0, 100) || "Stay updated with our latest news and announcements"}
             buttonLabel="Read more"
             href="/news"
-            imageUrl={latestNews?.featured_image_url}
+            imageUrl={latestNews?.featured_image_url || "/home_page/Latest News.jpg"}
           />
           <InfoCard
             title="Gallery"
             description="Memories from our past gatherings and reunions"
             buttonLabel="See more"
             href="/gallery"
+            imageUrl="/home_page/Gallery.jpg"
           />
           <InfoCard
             title="Upcoming Events"
             description={latestEvent?.description?.substring(0, 100) || "Check out our upcoming alumni events"}
             buttonLabel="Read more"
-            href="/news"
-            imageUrl={latestEvent?.featured_image_url}
+            href="/events"
+            imageUrl={latestEvent?.featured_image_url || "/home_page/Banner.jpg"}
           />
         </div>
       </section>

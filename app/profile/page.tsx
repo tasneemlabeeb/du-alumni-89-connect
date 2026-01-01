@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Upload, Camera, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -19,6 +20,7 @@ import { departments } from "@/lib/data/departments";
 import { faculties } from "@/lib/data/faculties";
 import { halls } from "@/lib/data/halls";
 import { bloodGroups } from "@/lib/data/bloodGroups";
+import { districts } from "@/lib/data/districts";
 
 export default function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
@@ -43,6 +45,10 @@ export default function ProfilePage() {
     contactNo: '',
     bloodGroup: '',
     email: user?.email || '',
+    dateOfBirth: '',
+    homeDistrict: '',
+    showBirthdayToMembers: true,
+    showMobileToMembers: true,
     profession: '',
     maritalStatus: '',
     children: '',
@@ -66,6 +72,10 @@ export default function ProfilePage() {
         contactNo: profile.contactNo || '',
         bloodGroup: profile.bloodGroup || '',
         email: profile.email || user?.email || '',
+        dateOfBirth: profile.dateOfBirth || '',
+        homeDistrict: profile.homeDistrict || '',
+        showBirthdayToMembers: profile.showBirthdayToMembers !== undefined ? profile.showBirthdayToMembers : true,
+        showMobileToMembers: profile.showMobileToMembers !== undefined ? profile.showMobileToMembers : true,
         profession: profile.profession || '',
         maritalStatus: profile.maritalStatus || '',
         children: profile.children || '',
@@ -88,6 +98,22 @@ export default function ProfilePage() {
     return Math.round((filledFields / fields.length) * 100);
   };
 
+  // Calculate missing mandatory fields
+  const getMissingMandatoryFields = () => {
+    const mandatoryFields = {
+      fullName: 'Full Name',
+      nickName: 'Nick Name',
+      department: 'Department',
+      hall: 'Hall',
+      contactNo: 'Contact Number',
+      bloodGroup: 'Blood Group'
+    };
+
+    return Object.entries(mandatoryFields)
+      .filter(([key]) => !formData[key as keyof typeof formData] || String(formData[key as keyof typeof formData]).trim() === '')
+      .map(([, label]) => label);
+  };
+
   const missingFields = [
     !formData.fullName && "Full Name",
     !formData.nickName && "Nick Name",
@@ -102,6 +128,8 @@ export default function ProfilePage() {
     !formData.faculty && "Faculty",
     !formData.presentCityOfLiving && "Present city of living",
   ].filter(Boolean);
+
+  const mandatoryMissingFields = getMissingMandatoryFields();
 
   const handlePhotoUpload = async (file: File, photoType: 'profile' | 'family') => {
     const setUploading = photoType === 'profile' ? setIsUploadingProfile : setIsUploadingFamily;
@@ -261,6 +289,18 @@ export default function ProfilePage() {
   }
 
   const handleSave = async () => {
+    // Check if mandatory fields are filled
+    const mandatoryMissing = getMissingMandatoryFields();
+
+    if (mandatoryMissing.length > 0) {
+      toast({
+        title: "Incomplete Profile",
+        description: `Please fill in the following mandatory fields: ${mandatoryMissing.join(', ')}`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setIsSaving(true);
       const result = await saveProfile(formData);
@@ -270,6 +310,8 @@ export default function ProfilePage() {
           title: "Success!",
           description: result.message || "Profile saved successfully",
         });
+        // Reload to update profile completion status
+        window.location.reload();
       } else {
         toast({
           title: "Save Failed",
@@ -338,9 +380,28 @@ export default function ProfilePage() {
               
               <Progress value={completionPercentage} className="h-3 mb-4" />
               
+              {mandatoryMissingFields.length > 0 && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                  <p className="text-sm font-medium text-red-800 mb-3 flex items-center gap-2">
+                    <AlertCircle size={16} />
+                    Mandatory fields missing (complete these to access member features):
+                  </p>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {mandatoryMissingFields.map((field, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-sm text-red-700">
+                        <svg className="w-4 h-4 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                        </svg>
+                        <span className="font-medium">{field}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
               {missingFields.length > 0 && (
                 <div className="bg-slate-50 rounded-lg p-4">
-                  <p className="text-sm font-medium text-slate-700 mb-3">Missing Information:</p>
+                  <p className="text-sm font-medium text-slate-700 mb-3">Optional fields for complete profile:</p>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                     {missingFields.map((field, idx) => (
                       <div key={idx} className="flex items-center gap-2 text-sm text-slate-600">
@@ -560,19 +621,6 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="contactNo">
-                    Contact No
-                  </Label>
-                  <Input
-                    id="contactNo"
-                    value={formData.contactNo}
-                    onChange={(e) => setFormData({ ...formData, contactNo: e.target.value })}
-                    disabled={false}
-                    placeholder="Enter your contact number"
-                  />
-                </div>
-
-                <div className="space-y-2">
                   <Label htmlFor="bloodGroup">
                     Blood Group
                   </Label>
@@ -604,6 +652,83 @@ export default function ProfilePage() {
                     disabled
                     placeholder="Your email address"
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="dateOfBirth">
+                    Date of Birth
+                  </Label>
+                  <Input
+                    id="dateOfBirth"
+                    type="date"
+                    value={formData.dateOfBirth}
+                    onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                    placeholder="Select your date of birth"
+                  />
+                  <div className="flex items-center space-x-2 mt-2">
+                    <Checkbox
+                      id="showBirthdayToMembers"
+                      checked={formData.showBirthdayToMembers}
+                      onCheckedChange={(checked) => 
+                        setFormData({ ...formData, showBirthdayToMembers: checked === true })
+                      }
+                    />
+                    <label
+                      htmlFor="showBirthdayToMembers"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                    >
+                      Show birthday to other members
+                    </label>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="homeDistrict">
+                    Home District
+                  </Label>
+                  <Select 
+                    value={formData.homeDistrict} 
+                    onValueChange={(value) => setFormData({ ...formData, homeDistrict: value })}
+                  >
+                    <SelectTrigger id="homeDistrict">
+                      <SelectValue placeholder="Select your home district" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {districts.map((district) => (
+                        <SelectItem key={district} value={district}>
+                          {district}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="contactNo">
+                    Contact No
+                  </Label>
+                  <Input
+                    id="contactNo"
+                    value={formData.contactNo}
+                    onChange={(e) => setFormData({ ...formData, contactNo: e.target.value })}
+                    disabled={false}
+                    placeholder="Enter your contact number"
+                  />
+                  <div className="flex items-center space-x-2 mt-2">
+                    <Checkbox
+                      id="showMobileToMembers"
+                      checked={formData.showMobileToMembers}
+                      onCheckedChange={(checked) => 
+                        setFormData({ ...formData, showMobileToMembers: checked === true })
+                      }
+                    />
+                    <label
+                      htmlFor="showMobileToMembers"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                    >
+                      Show mobile number to other members
+                    </label>
+                  </div>
                 </div>
               </div>
             </CardContent>

@@ -120,19 +120,21 @@ export async function GET(request: NextRequest) {
     const membersWithProfiles = await Promise.all(
       members.map(async (member) => {
         try {
-          const profileDoc = await adminDb
-            .collection('profiles')
-            .doc(member.user_id)
-            .get();
+          const [profileDoc, userDoc] = await Promise.all([
+            adminDb.collection('profiles').doc(member.user_id).get(),
+            adminDb.collection('users').doc(member.user_id).get()
+          ]);
 
           return {
             ...member,
+            role: userDoc.exists ? userDoc.data()?.role : 'user',
             profile: profileDoc.exists ? profileDoc.data() : null,
           };
         } catch (error) {
-          console.error(`[Members API] Error fetching profile for member ${member.user_id}:`, error);
+          console.error(`[Members API] Error fetching profile/role for member ${member.user_id}:`, error);
           return {
             ...member,
+            role: 'user',
             profile: null,
           };
         }

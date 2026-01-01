@@ -22,6 +22,7 @@ interface BlogPost {
   author_name: string;
   author_department?: string;
   created_at: string;
+  external_url?: string; // For Published Articles - link to the original publication
 }
 
 function BlogContent() {
@@ -238,15 +239,28 @@ function BlogContent() {
                               </div>
                             </div>
 
-                            <Button 
-                              variant="outline" 
-                              asChild
-                              className="border-[#4A5568] text-[#4A5568] hover:bg-[#4A5568] hover:text-white transition-all"
-                            >
-                              <Link href={`/blog/${post.id}`}>
-                                Read more →
-                              </Link>
-                            </Button>
+                            <div className="flex gap-2">
+                              {post.external_url && post.category === 'published-articles' && (
+                                <Button 
+                                  variant="default"
+                                  asChild
+                                  className="bg-green-600 hover:bg-green-700 text-white"
+                                >
+                                  <a href={post.external_url} target="_blank" rel="noopener noreferrer">
+                                    View Publication ↗
+                                  </a>
+                                </Button>
+                              )}
+                              <Button 
+                                variant="outline" 
+                                asChild
+                                className="border-[#4A5568] text-[#4A5568] hover:bg-[#4A5568] hover:text-white transition-all"
+                              >
+                                <Link href={`/blog/${post.id}`}>
+                                  Read more →
+                                </Link>
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       </div>

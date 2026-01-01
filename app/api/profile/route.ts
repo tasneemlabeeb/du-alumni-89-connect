@@ -34,6 +34,16 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { db } = getFirebaseAdmin();
 
+    // Check if mandatory fields are filled
+    const mandatoryFieldsFilled = !!(
+      body.fullName &&
+      body.nickName &&
+      body.department &&
+      body.hall &&
+      body.contactNo &&
+      body.bloodGroup
+    );
+
     // Prepare profile data
     const profileData = {
       ...body,
@@ -54,6 +64,17 @@ export async function POST(request: NextRequest) {
       await profileRef.update(profileData);
     }
 
+    // Update user's profile_complete status
+    const userRef = db.collection('users').doc(userId);
+    const userDoc = await userRef.get();
+    
+    if (userDoc.exists) {
+      await userRef.update({
+        profile_complete: mandatoryFieldsFilled,
+        updated_at: new Date().toISOString(),
+      });
+    }
+
     // Also update member record if it exists
     const memberRef = db.collection('members').doc(userId);
     const memberDoc = await memberRef.get();
@@ -69,8 +90,11 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ 
       success: true, 
-      message: 'Profile saved successfully',
-      profile: profileData 
+      message: mandatoryFieldsFilled 
+        ? 'Profile saved successfully' 
+        : 'Profile saved. Please complete all mandatory fields.',
+      profile: profileData,
+      profileComplete: mandatoryFieldsFilled
     }, { status: 200 });
   } catch (error: any) {
     console.error('Error saving profile:', error);

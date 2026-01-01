@@ -9,11 +9,12 @@ import { useToast } from '@/hooks/use-toast';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName: string, phoneNumber: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
   isApprovedMember: boolean;
+  profileComplete: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,6 +24,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isApprovedMember, setIsApprovedMember] = useState(false);
+  const [profileComplete, setProfileComplete] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -33,8 +35,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setLoading(true);
       setUser(user);
-      setLoading(false);
 
       if (user) {
         // Check user role from 'users' collection
@@ -45,6 +47,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const userData = userDoc.data();
             setIsAdmin(userData?.role === 'admin');
             setIsApprovedMember(userData?.approval_status === 'approved');
+            
+            // Check profile completion
+            const profileDoc = await getDoc(doc(db, 'profiles', user.uid));
+            if (profileDoc.exists()) {
+              const profileData = profileDoc.data();
+              // Check if mandatory fields are filled
+              const mandatoryFieldsFilled = !!(
+                profileData?.fullName &&
+                profileData?.nickName &&
+                profileData?.department &&
+                profileData?.hall &&
+                profileData?.contactNo &&
+                profileData?.bloodGroup
+              );
+              setProfileComplete(mandatoryFieldsFilled);
+            } else {
+              setProfileComplete(false);
+            }
           } else {
             // Fallback: check old user_roles collection
             const userRolesRef = collection(db, 'user_roles');
@@ -63,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             } else {
               setIsApprovedMember(false);
             }
+            setProfileComplete(false);
           }
         } catch (error: any) {
           // Silently handle permission errors for new users
@@ -72,17 +93,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
           setIsAdmin(false);
           setIsApprovedMember(false);
+          setProfileComplete(false);
         }
       } else {
         setIsAdmin(false);
         setIsApprovedMember(false);
+        setProfileComplete(false);
       }
+      
+      setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = async (email: string, password: string, fullName: string, phoneNumber: string) => {
     if (!auth || !db) {
       toast({
         title: "Service Unavailable",
@@ -106,9 +131,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await setDoc(doc(db, 'users', userCredential.user.uid), {
         email: email,
         full_name: fullName,
+        phone_number: phoneNumber,
         role: 'user', // Default role is 'user', admin can change this
         approval_status: 'pending',
+        approval_count: 0,
+        approved_by_admins: [],
         email_verified: userCredential.user.emailVerified,
+        profile_complete: false,
         created_at: timestamp,
         updated_at: timestamp,
       });
@@ -118,13 +147,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user_id: userCredential.user.uid,
         full_name: fullName,
         email: email,
+        phone_number: phoneNumber,
         status: 'pending',
         created_at: timestamp,
       });
 
       toast({
         title: "Registration Successful",
-        description: "Your membership application is pending approval.",
+        description: "Please complete your profile to continue.",
       });
 
       return { error: null };
@@ -195,7 +225,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signIn,
       signOut,
       isAdmin,
-      isApprovedMember
+      isApprovedMember,
+      profileComplete
     }}>
       {children}
     </AuthContext.Provider>

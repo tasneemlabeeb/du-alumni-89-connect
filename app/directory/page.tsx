@@ -9,6 +9,8 @@ import { Search, Mail, Plus, ChevronLeft, ChevronRight, Loader2 } from "lucide-r
 import { useState, useEffect } from "react";
 import { departments } from "@/lib/data/departments";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Image from "next/image";
+import Link from "next/link";
 
 interface Member {
   id: string;
@@ -39,8 +41,99 @@ interface Member {
     homeDistrict?: string;
     dateOfBirth?: string;
     batch?: string;
+    showBirthdayToMembers?: boolean;
+    showMobileToMembers?: boolean;
   };
 }
+
+interface Memorial {
+  name: string;
+  department: string;
+  hall?: string;
+  year: string;
+  imagePath?: string;
+}
+
+const memorials: Memorial[] = [
+  {
+    name: "Abu Ahmed",
+    department: "Management",
+    year: "2020",
+    imagePath: "/in-memoriam/Abu-Ahmed,-Management,-2020.png"
+  },
+  {
+    name: "Md. Nasir Uddin",
+    department: "Mathematics",
+    hall: "Fazlul Haquq Hall",
+    year: "2024",
+    imagePath: "/in-memoriam/Md. Nasir Uddin, Mathematics, 2025.png"
+  },
+  {
+    name: "Md. Rofiqul Islam",
+    department: "Statistics",
+    year: "2021",
+    imagePath: "/in-memoriam/Md.-Rofiqul-Islam,-Statistics,-2021.png"
+  },
+  {
+    name: "Shamsun Naher Rekha",
+    department: "Political Science",
+    year: "February 2025",
+    imagePath: "/in-memoriam/Shamsun Naher Rekha, Political Science, February 2025.png"
+  },
+  {
+    name: "Zahidul Hasan Bhuiyan",
+    department: "Statistics",
+    year: "2025",
+    imagePath: "/in-memoriam/Zahidul Hasan Bhuiyan, Statictics, 2025.png"
+  },
+  {
+    name: "Md Mokaddes Ali (Mukul)",
+    department: "Mathematics",
+    hall: "Muktijoddha Ziaur Rahman Hall",
+    year: "2014"
+  },
+  {
+    name: "Md Sayed Ali",
+    department: "Mathematics",
+    hall: "Muktijoddha Ziaur Rahman Hall",
+    year: "2018"
+  },
+  {
+    name: "Naznin Akhter Lina",
+    department: "Bangla",
+    hall: "Ruqayyah Hall",
+    year: "2011"
+  },
+  {
+    name: "Rowshan Ara Begum Smriti",
+    department: "Bangla",
+    hall: "Ruqayyah Hall",
+    year: "15 February 2017"
+  },
+  {
+    name: "Mokhlesur Rahman Sagar",
+    department: "Bangla",
+    hall: "S. M. Hall",
+    year: "16 June 2021"
+  },
+  {
+    name: "Afifa Sultana",
+    department: "Bangla",
+    hall: "Ruqayyah Hall",
+    year: "2025"
+  },
+  {
+    name: "Ishrat Jahan Kalpona",
+    department: "Bangla",
+    year: "21 October 2025"
+  },
+  {
+    name: "Sajjat Hossain",
+    department: "Bangla",
+    hall: "Surya Sen Hall",
+    year: "2021"
+  }
+];
 
 // Normalize hall names to standard format
 function normalizeHallName(hall: string | undefined): string | undefined {
@@ -219,7 +312,111 @@ function normalizeHallName(hall: string | undefined): string | undefined {
 }
 
 export default function DirectoryPage() {
-  const { isApprovedMember } = useAuth();
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-900"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+        {/* Header Banner */}
+        <div className="bg-gradient-to-r from-indigo-900 to-indigo-800 text-white py-20">
+          <div className="container mx-auto px-4 text-center">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Members Directory</h1>
+            <p className="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
+              Connect with fellow alumni from DU Batch 89
+            </p>
+          </div>
+        </div>
+
+        {/* Login Required Message */}
+        <div className="container mx-auto px-4 py-16">
+          <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-8 text-center">
+            <div className="mb-6 text-indigo-900">
+              <svg className="w-20 h-20 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            </div>
+            <h2 className="text-3xl font-bold mb-4 text-slate-900">Members Only Area</h2>
+            <p className="text-lg text-slate-600 mb-8">
+              Please log in to access the members directory and connect with your fellow alumni.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button asChild size="lg" className="bg-indigo-900 hover:bg-indigo-800">
+                <Link href="/auth">Log In</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link href="/">Return to Home</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return <DirectoryContent />;
+}
+
+function DirectoryContent() {
+  const { isApprovedMember, profileComplete, isAdmin } = useAuth();
+
+  // Check profile completion requirement
+  if (!profileComplete && !isAdmin) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-slate-100 to-white">
+        <div className="text-center max-w-md mx-auto p-8 bg-white rounded-lg shadow-lg">
+          <div className="mb-6 text-yellow-600">
+            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold mb-4 text-slate-900">Profile Incomplete</h2>
+          <p className="text-slate-600 mb-6">
+            Please complete your profile with all mandatory information to access member features like gallery and directory.
+          </p>
+          <p className="text-sm text-slate-500 mb-6">
+            Required fields: Full Name, Nick Name, Department, Hall, Contact Number, and Blood Group
+          </p>
+          <Button asChild className="w-full">
+            <Link href="/profile">Complete Your Profile</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Check approval requirement
+  if (!isApprovedMember && !isAdmin) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-slate-100 to-white">
+        <div className="text-center max-w-md mx-auto p-8 bg-white rounded-lg shadow-lg">
+          <div className="mb-6 text-blue-600">
+            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold mb-4 text-slate-900">Membership Pending Approval</h2>
+          <p className="text-slate-600 mb-6">
+            Your membership application is being reviewed by our administrators. You need approval from two admins to access member-only features.
+          </p>
+          <p className="text-sm text-slate-500 mb-6">
+            You'll receive access once your application has been approved. This usually takes 24-48 hours.
+          </p>
+          <Button asChild variant="outline" className="w-full">
+            <Link href="/">Return to Home</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState<string | undefined>(undefined);
   const [selectedHall, setSelectedHall] = useState<string | undefined>(undefined);
@@ -254,7 +451,6 @@ export default function DirectoryPage() {
   }, []);
 
   const featuredProfiles = members.slice(0, 3);
-  const inMemoriam = Array(4).fill(null);
 
   // Extract unique values for filters from actual member data
   // Normalize hall names before creating unique list
@@ -398,8 +594,8 @@ export default function DirectoryPage() {
       </div>
 
       <div className="container mx-auto px-4 py-12 max-w-7xl">
-        {/* Profiles in Excellence Section */}
-        <div className="mb-12">
+        {/* Profiles in Excellence Section - Hidden for now */}
+        {/* <div className="mb-12">
           <h2 className="text-2xl font-bold text-center text-slate-800 mb-8">Profiles in Excellence</h2>
           <div className="relative">
             <div className="flex items-center justify-center gap-4">
@@ -430,7 +626,7 @@ export default function DirectoryPage() {
               </Button>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Search Section */}
         <div className="bg-white rounded-lg p-6 shadow-sm mb-8">
@@ -586,8 +782,14 @@ export default function DirectoryPage() {
                         {member.profile?.department && (
                           <p><span className="font-medium">Department:</span> {member.profile.department}</p>
                         )}
-                        {member.profile?.contactNo && (
+                        {member.profile?.contactNo && member.profile?.showMobileToMembers !== false && (
                           <p><span className="font-medium">Contact:</span> {member.profile.contactNo}</p>
+                        )}
+                        {member.profile?.dateOfBirth && member.profile?.showBirthdayToMembers !== false && (
+                          <p><span className="font-medium">Birthday:</span> {new Date(member.profile.dateOfBirth).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</p>
+                        )}
+                        {member.profile?.homeDistrict && (
+                          <p><span className="font-medium">Home District:</span> {member.profile.homeDistrict}</p>
                         )}
                         {member.profile?.presentCityOfLiving && (
                           <p><span className="font-medium">Location:</span> {member.profile.presentCityOfLiving}</p>
@@ -699,32 +901,47 @@ export default function DirectoryPage() {
         </div>
 
         {/* In Memoriam Section */}
-        <div className="bg-slate-100 rounded-lg p-8">
-          <h2 className="text-2xl font-bold text-center text-slate-800 mb-8">In Memoriam</h2>
-          <div className="relative">
-            <div className="flex items-center justify-center gap-4">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-10 w-10 rounded-full bg-indigo-900 text-white hover:bg-indigo-800 shrink-0"
-              >
-                <ChevronLeft size={20} />
-              </Button>
-              
-              <div className="grid grid-cols-4 gap-6 flex-1 max-w-4xl">
-                {inMemoriam.map((_, idx) => (
-                  <div key={idx} className="aspect-square rounded-full bg-white shadow-sm"></div>
-                ))}
-              </div>
-              
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-10 w-10 rounded-full bg-indigo-900 text-white hover:bg-indigo-800 shrink-0"
-              >
-                <ChevronRight size={20} />
-              </Button>
-            </div>
+        <div id="memoriam" className="bg-slate-100 rounded-lg p-8 mt-8">
+          <h2 className="text-2xl font-bold text-center text-slate-800 mb-2">In Memoriam</h2>
+          <p className="text-center text-slate-600 mb-8 italic">
+            Remembering our beloved members who are no longer with us
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 max-w-6xl mx-auto">
+            {memorials.map((memorial, index) => (
+              <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                <CardContent className="p-0">
+                  {memorial.imagePath ? (
+                    <div className="relative aspect-[3/4] bg-slate-100">
+                      <Image
+                        src={memorial.imagePath}
+                        alt={memorial.name}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                      />
+                    </div>
+                  ) : (
+                    <div className="aspect-[3/4] bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="w-16 h-16 mx-auto rounded-full bg-indigo-900/20 flex items-center justify-center mb-2">
+                          <span className="text-2xl font-serif text-indigo-900">
+                            {memorial.name.charAt(0)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  <div className="p-3 bg-white">
+                    <h3 className="text-sm font-bold text-slate-800 mb-1 line-clamp-2">{memorial.name}</h3>
+                    <p className="text-xs text-slate-600 line-clamp-1">{memorial.department}</p>
+                    {memorial.hall && (
+                      <p className="text-xs text-slate-500 line-clamp-1">{memorial.hall}</p>
+                    )}
+                    <p className="text-xs text-slate-400 mt-1">{memorial.year}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </div>

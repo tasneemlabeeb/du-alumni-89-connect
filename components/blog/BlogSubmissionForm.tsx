@@ -26,6 +26,7 @@ export default function BlogSubmissionForm({ onSuccess }: BlogSubmissionFormProp
     excerpt: '',
     category: 'campus-memories',
     featured_image_url: '',
+    external_url: '', // For published articles - link to original publication
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,6 +69,7 @@ export default function BlogSubmissionForm({ onSuccess }: BlogSubmissionFormProp
         excerpt: '',
         category: 'campus-memories',
         featured_image_url: '',
+        external_url: '',
       });
 
       if (onSuccess) onSuccess();
@@ -157,6 +159,23 @@ export default function BlogSubmissionForm({ onSuccess }: BlogSubmissionFormProp
               required
             />
           </div>
+
+          {/* External URL field - only show for Published Articles */}
+          {formData.category === 'published-articles' && (
+            <div className="space-y-2">
+              <Label htmlFor="external_url">Original Publication Link (Optional)</Label>
+              <Input
+                id="external_url"
+                type="url"
+                value={formData.external_url}
+                onChange={(e) => setFormData({ ...formData, external_url: e.target.value })}
+                placeholder="https://example.com/your-article"
+              />
+              <p className="text-xs text-muted-foreground">
+                If this article was published elsewhere, add the link here so readers can view the original publication.
+              </p>
+            </div>
+          )}
 
           <ImageUpload
             value={formData.featured_image_url}

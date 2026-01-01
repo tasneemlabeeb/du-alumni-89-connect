@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle, User, Mail, Phone, MapPin, Briefcase, Calendar, Loader2, FileText, Download, Eye } from 'lucide-react';
+import { CheckCircle, XCircle, User, Mail, Phone, MapPin, Briefcase, Calendar, Loader2, FileText, Download, Eye, ShieldCheck, ShieldAlert, Filter } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -18,6 +18,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { departments } from '@/lib/data/departments';
+import { halls } from '@/lib/data/halls';
+import * as XLSX from 'xlsx';
 
 interface Member {
   id: string;
@@ -26,6 +30,8 @@ interface Member {
   email: string;
   status: 'pending' | 'approved' | 'rejected';
   created_at: string;
+  approval_count?: number;
+  approved_by_admins?: string[];
   profile?: {
     fullName?: string;
     nickName?: string;
@@ -61,8 +67,12 @@ export function MemberManagement() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
-  const [actionType, setActionType] = useState<'approve' | 'reject' | null>(null);
+  const [actionType, setActionType] = useState<'approve' | 'reject' | 'make_admin' | 'remove_admin' | null>(null);
   const [currentTab, setCurrentTab] = useState<'pending' | 'approved' | 'rejected'>('pending');
+  
+  // Filter states
+  const [deptFilter, setDeptFilter] = useState<string>('all');
+  const [hallFilter, setHallFilter] = useState<string>('all');
 
   useEffect(() => {
     if (user) {
@@ -189,7 +199,100 @@ export function MemberManagement() {
     }
   };
 
-  const confirmAction = (member: Member, action: 'approve' | 'reject') => {
+  const handleUpdateRole = async (userId: string, role: 'admin' | 'user') => {
+    try {
+      setActionLoading(userId);
+      const token = await user?.getIdToken();
+
+      const response = await fetch('/api/admin/users/update-role', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ userId, role }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update user role');
+      }
+
+      toast({
+        title: 'Success',
+        description: `User role updated to ${role} successfully`,
+      });
+
+      // Refresh the list
+      fetchMembers(currentTab);
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to update role',
+        variant: 'destructive',
+      });
+    } finally {
+      setActionLoading(null);
+      setSelectedMember(null);
+      setActionType(null);
+    }
+  };
+
+  const exportToExcel = () => {
+    try {
+      const filteredMembers = members.filter(m => {
+        const matchesDept = deptFilter === 'all' || m.profile?.department === deptFilter;
+        const matchesHall = hallFilter === 'all' || m.profile?.hall === hallFilter;
+        return matchesDept && matchesHall;
+      });
+
+      if (filteredMembers.length === 0) {
+        toast({
+          title: "No data",
+          description: "No members match the current filters",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const exportData = filteredMembers.map(m => ({
+        'Full Name': m.profile?.fullName || m.full_name,
+        'Email': m.email,
+        'Phone': m.profile?.contactNo || '',
+        'Department': m.profile?.department || '',
+        'Hall': m.profile?.hall || '',
+        'Profession': m.profile?.profession || '',
+        'City': m.profile?.presentCityOfLiving || '',
+        'Status': m.status,
+        'Joined Date': new Date(m.created_at).toLocaleDateString()
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Approved Members");
+      
+      // Generate filename with filters
+      let filename = "Approved_Members";
+      if (deptFilter !== 'all') filename += `_${deptFilter.replace(/\s+/g, '_')}`;
+      if (hallFilter !== 'all') filename += `_${hallFilter.replace(/\s+/g, '_')}`;
+      filename += `_${new Date().toISOString().split('T')[0]}.xlsx`;
+
+      XLSX.writeFile(workbook, filename);
+      
+      toast({
+        title: "Success",
+        description: `Exported ${filteredMembers.length} members to Excel`,
+      });
+    } catch (error) {
+      console.error('Export error:', error);
+      toast({
+        title: "Export Failed",
+        description: "Could not generate Excel file",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const confirmAction = (member: Member, action: 'approve' | 'reject' | 'make_admin' | 'remove_admin') => {
     setSelectedMember(member);
     setActionType(action);
   };
@@ -229,21 +332,74 @@ export function MemberManagement() {
   return (
     <>
       <Card>
-        <CardHeader>
-          <CardTitle>Member Management</CardTitle>
-          <CardDescription>
-            View and manage member applications
-          </CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <div>
+            <CardTitle>Member Management</CardTitle>
+            <CardDescription>
+              View and manage member applications
+            </CardDescription>
+          </div>
+          {currentTab === 'approved' && (
+            <Button variant="outline" size="sm" onClick={exportToExcel} className="flex items-center gap-2">
+              <Download className="w-4 h-4" />
+              Export to Excel
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
           <Tabs value={currentTab} onValueChange={(value) => setCurrentTab(value as any)}>
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="pending">Pending</TabsTrigger>
-              <TabsTrigger value="approved">Approved</TabsTrigger>
-              <TabsTrigger value="rejected">Rejected</TabsTrigger>
-            </TabsList>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+              <TabsList className="grid w-full md:w-auto grid-cols-3">
+                <TabsTrigger value="pending">Pending</TabsTrigger>
+                <TabsTrigger value="approved">Approved</TabsTrigger>
+                <TabsTrigger value="rejected">Rejected</TabsTrigger>
+              </TabsList>
 
-            <TabsContent value={currentTab} className="mt-6">
+              {currentTab === 'approved' && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex items-center gap-2">
+                    <Filter className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">Filters:</span>
+                  </div>
+                  <Select value={deptFilter} onValueChange={setDeptFilter}>
+                    <SelectTrigger className="w-[180px] h-8">
+                      <SelectValue placeholder="Department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Departments</SelectItem>
+                      {departments.map(dept => (
+                        <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select value={hallFilter} onValueChange={setHallFilter}>
+                    <SelectTrigger className="w-[180px] h-8">
+                      <SelectValue placeholder="Hall" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Halls</SelectItem>
+                      {halls.map(hall => (
+                        <SelectItem key={hall} value={hall}>{hall}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  
+                  {(deptFilter !== 'all' || hallFilter !== 'all') && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => { setDeptFilter('all'); setHallFilter('all'); }}
+                      className="h-8 px-2 text-xs"
+                    >
+                      Clear
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <TabsContent value={currentTab} className="mt-0">
               {members.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-muted-foreground">
@@ -252,7 +408,14 @@ export function MemberManagement() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {members.map((member) => (
+                  {members
+                    .filter(m => {
+                      if (currentTab !== 'approved') return true;
+                      const matchesDept = deptFilter === 'all' || m.profile?.department === deptFilter;
+                      const matchesHall = hallFilter === 'all' || m.profile?.hall === hallFilter;
+                      return matchesDept && matchesHall;
+                    })
+                    .map((member) => (
                     <Card key={member.id} className="overflow-hidden">
                       <CardContent className="p-6">
                         <div className="flex flex-col lg:flex-row gap-6">
@@ -283,7 +446,14 @@ export function MemberManagement() {
                                     ({member.profile.nickName})
                                   </p>
                                 )}
-                                <div className="mt-1">{getStatusBadge(member.status)}</div>
+                                <div className="mt-1 flex items-center gap-2">
+                                  {getStatusBadge(member.status)}
+                                  {member.status === 'pending' && member.approval_count !== undefined && (
+                                    <Badge variant="outline" className="text-xs">
+                                      {member.approval_count}/2 Approvals
+                                    </Badge>
+                                  )}
+                                </div>
                               </div>
                             </div>
 
@@ -399,42 +569,68 @@ export function MemberManagement() {
                           </div>
 
                           {/* Actions */}
-                          {currentTab === 'pending' && (
-                            <div className="flex lg:flex-col gap-2 flex-shrink-0">
+                          <div className="flex lg:flex-col gap-2 flex-shrink-0">
+                            {currentTab === 'pending' && (
+                              <>
+                                <Button
+                                  size="sm"
+                                  variant="default"
+                                  onClick={() => confirmAction(member, 'approve')}
+                                  disabled={actionLoading === member.id}
+                                  className="min-w-[100px]"
+                                >
+                                  {actionLoading === member.id ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                  ) : (
+                                    <>
+                                      <CheckCircle className="w-4 h-4 mr-1" />
+                                      Approve
+                                    </>
+                                  )}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => confirmAction(member, 'reject')}
+                                  disabled={actionLoading === member.id}
+                                  className="min-w-[100px]"
+                                >
+                                  {actionLoading === member.id ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                  ) : (
+                                    <>
+                                      <XCircle className="w-4 h-4 mr-1" />
+                                      Reject
+                                    </>
+                                  )}
+                                </Button>
+                              </>
+                            )}
+                            
+                            {currentTab === 'approved' && (
                               <Button
                                 size="sm"
-                                variant="default"
-                                onClick={() => confirmAction(member, 'approve')}
+                                variant="outline"
+                                onClick={() => confirmAction(member, (member as any).role === 'admin' ? 'remove_admin' : 'make_admin')}
                                 disabled={actionLoading === member.id}
-                                className="min-w-[100px]"
+                                className="min-w-[120px]"
                               >
                                 {actionLoading === member.id ? (
                                   <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (member as any).role === 'admin' ? (
+                                  <>
+                                    <ShieldAlert className="w-4 h-4 mr-1 text-amber-600" />
+                                    Remove Admin
+                                  </>
                                 ) : (
                                   <>
-                                    <CheckCircle className="w-4 h-4 mr-1" />
-                                    Approve
+                                    <ShieldCheck className="w-4 h-4 mr-1 text-blue-600" />
+                                    Make Admin
                                   </>
                                 )}
                               </Button>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => confirmAction(member, 'reject')}
-                                disabled={actionLoading === member.id}
-                                className="min-w-[100px]"
-                              >
-                                {actionLoading === member.id ? (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                ) : (
-                                  <>
-                                    <XCircle className="w-4 h-4 mr-1" />
-                                    Reject
-                                  </>
-                                )}
-                              </Button>
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
@@ -454,7 +650,9 @@ export function MemberManagement() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {actionType === 'approve' ? 'Approve Member' : 'Reject Member'}
+              {actionType === 'approve' ? 'Approve Member' : 
+               actionType === 'reject' ? 'Reject Member' :
+               actionType === 'make_admin' ? 'Make Admin' : 'Remove Admin'}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {actionType === 'approve' ? (
@@ -462,10 +660,19 @@ export function MemberManagement() {
                   Are you sure you want to approve <strong>{selectedMember?.full_name}</strong>? 
                   They will gain full access to the platform.
                 </>
-              ) : (
+              ) : actionType === 'reject' ? (
                 <>
                   Are you sure you want to reject <strong>{selectedMember?.full_name}</strong>? 
                   They will not be able to access the platform.
+                </>
+              ) : actionType === 'make_admin' ? (
+                <>
+                  Are you sure you want to make <strong>{selectedMember?.full_name}</strong> an admin? 
+                  They will have full access to the admin panel.
+                </>
+              ) : (
+                <>
+                  Are you sure you want to remove admin privileges from <strong>{selectedMember?.full_name}</strong>?
                 </>
               )}
             </AlertDialogDescription>
@@ -477,14 +684,18 @@ export function MemberManagement() {
                 if (selectedMember) {
                   if (actionType === 'approve') {
                     handleApprove(selectedMember.id);
-                  } else {
+                  } else if (actionType === 'reject') {
                     handleReject(selectedMember.id);
+                  } else if (actionType === 'make_admin') {
+                    handleUpdateRole(selectedMember.user_id, 'admin');
+                  } else if (actionType === 'remove_admin') {
+                    handleUpdateRole(selectedMember.user_id, 'user');
                   }
                 }
               }}
-              className={actionType === 'reject' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : ''}
+              className={actionType === 'reject' || actionType === 'remove_admin' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : ''}
             >
-              {actionType === 'approve' ? 'Approve' : 'Reject'}
+              Confirm
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

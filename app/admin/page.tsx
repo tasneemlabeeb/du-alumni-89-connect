@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import { useEffect, useState } from "react";
 
 export default function AdminPage() {
   const { isAdmin, loading, user } = useAuth();
+  const router = useRouter();
   const [stats, setStats] = useState({
     totalMembers: 0,
     approvedMembers: 0,
@@ -24,6 +26,12 @@ export default function AdminPage() {
     eventsCount: 0,
     galleryAlbums: 0,
   });
+
+  useEffect(() => {
+    if (!loading && (!user || !isAdmin)) {
+      router.push('/');
+    }
+  }, [user, isAdmin, loading, router]);
 
   useEffect(() => {
     if (user && isAdmin) {

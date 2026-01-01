@@ -10,6 +10,8 @@ import {
 } from '@/components/ui/dialog';
 import { Image as ImageIcon, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
+import Link from 'next/link';
 
 interface AlbumType {
   id: string;
@@ -36,6 +38,111 @@ interface Photo {
 }
 
 export default function GalleryPage() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-900"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+        {/* Header Banner */}
+        <div className="bg-gradient-to-r from-indigo-900 to-indigo-800 text-white py-20">
+          <div className="container mx-auto px-4 text-center">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Photo Gallery</h1>
+            <p className="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
+              Explore memories and moments from DU Alumni 89 Connect
+            </p>
+          </div>
+        </div>
+
+        {/* Login Required Message */}
+        <div className="container mx-auto px-4 py-16">
+          <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-8 text-center">
+            <div className="mb-6 text-indigo-900">
+              <svg className="w-20 h-20 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <h2 className="text-3xl font-bold mb-4 text-slate-900">Members Only Area</h2>
+            <p className="text-lg text-slate-600 mb-8">
+              Please log in to access the photo gallery and view memories shared by your fellow alumni.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button asChild size="lg" className="bg-indigo-900 hover:bg-indigo-800">
+                <Link href="/auth">Log In</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link href="/">Return to Home</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return <GalleryContent />;
+}
+
+function GalleryContent() {
+  const { isApprovedMember, profileComplete, isAdmin } = useAuth();
+
+  // Check profile completion requirement
+  if (!profileComplete && !isAdmin) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-slate-100 to-white">
+        <div className="text-center max-w-md mx-auto p-8 bg-white rounded-lg shadow-lg">
+          <div className="mb-6 text-yellow-600">
+            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold mb-4 text-slate-900">Profile Incomplete</h2>
+          <p className="text-slate-600 mb-6">
+            Please complete your profile with all mandatory information to access member features like gallery and directory.
+          </p>
+          <p className="text-sm text-slate-500 mb-6">
+            Required fields: Full Name, Nick Name, Department, Hall, Contact Number, and Blood Group
+          </p>
+          <Button asChild className="w-full">
+            <Link href="/profile">Complete Your Profile</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Check approval requirement
+  if (!isApprovedMember && !isAdmin) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-slate-100 to-white">
+        <div className="text-center max-w-md mx-auto p-8 bg-white rounded-lg shadow-lg">
+          <div className="mb-6 text-blue-600">
+            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold mb-4 text-slate-900">Membership Pending Approval</h2>
+          <p className="text-slate-600 mb-6">
+            Your membership application is being reviewed by our administrators. You need approval from two admins to access member-only features.
+          </p>
+          <p className="text-sm text-slate-500 mb-6">
+            You'll receive access once your application has been approved. This usually takes 24-48 hours.
+          </p>
+          <Button asChild variant="outline" className="w-full">
+            <Link href="/">Return to Home</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   const [albumTypes, setAlbumTypes] = useState<AlbumType[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
   const [recentPhotos, setRecentPhotos] = useState<Photo[]>([]);
