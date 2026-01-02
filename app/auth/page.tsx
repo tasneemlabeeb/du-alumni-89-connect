@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { Users, LogIn, UserPlus, KeyRound, ShieldCheck, ArrowLeft } from 'lucide-react';
+import { Users, LogIn, UserPlus, KeyRound, ShieldCheck, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 
@@ -87,6 +87,8 @@ function AuthContent() {
   const [tempCredentials, setTempCredentials] = useState({ email: '', password: '' });
   const [tempSignUpData, setTempSignUpData] = useState({ email: '', password: '', fullName: '', phoneNumber: '' });
   const [devPin, setDevPin] = useState<string | null>(null);
+  const [showSignInPassword, setShowSignInPassword] = useState(false);
+  const [showSignUpPassword, setShowSignUpPassword] = useState(false);
 
   // Redirect if already authenticated - use useEffect to avoid setState during render
   // But don't redirect if we're in the middle of PIN verification
@@ -495,14 +497,28 @@ function AuthContent() {
                   
                   <div className="space-y-2">
                     <Label htmlFor="signup-password">Password</Label>
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      placeholder="••••••••"
-                      value={signUpForm.password}
-                      onChange={(e) => setSignUpForm({ ...signUpForm, password: e.target.value })}
-                      required
-                    />
+                    <div className="relative">
+                      <Input
+                        id="signup-password"
+                        type={showSignUpPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        value={signUpForm.password}
+                        onChange={(e) => setSignUpForm({ ...signUpForm, password: e.target.value })}
+                        required
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSignUpPassword(!showSignUpPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      >
+                        {showSignUpPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
                   </div>
 
                   <Button type="submit" className="w-full" disabled={signUpLoading}>
@@ -619,14 +635,28 @@ function AuthContent() {
                     
                     <div className="space-y-2">
                       <Label htmlFor="signin-password">Password</Label>
-                      <Input
-                        id="signin-password"
-                        type="password"
-                        placeholder="••••••••"
-                        value={signInForm.password}
-                        onChange={(e) => setSignInForm({ ...signInForm, password: e.target.value })}
-                        required
-                      />
+                      <div className="relative">
+                        <Input
+                          id="signin-password"
+                          type={showSignInPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          value={signInForm.password}
+                          onChange={(e) => setSignInForm({ ...signInForm, password: e.target.value })}
+                          required
+                          className="pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowSignInPassword(!showSignInPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        >
+                          {showSignInPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
                     </div>
 
                     <Button type="submit" className="w-full" disabled={signInLoading}>

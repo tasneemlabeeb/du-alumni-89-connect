@@ -12,7 +12,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Upload, Camera, Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { Upload, Camera, Loader2, CheckCircle, AlertCircle, Key } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
@@ -21,6 +21,17 @@ import { faculties } from "@/lib/data/faculties";
 import { halls } from "@/lib/data/halls";
 import { bloodGroups } from "@/lib/data/bloodGroups";
 import { districts } from "@/lib/data/districts";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger,
+  DialogFooter
+} from "@/components/ui/dialog";
+import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
+import { auth } from "@/lib/firebase/config";
 
 export default function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
@@ -30,6 +41,13 @@ export default function ProfilePage() {
   const [isUploadingProfile, setIsUploadingProfile] = useState(false);
   const [isUploadingFamily, setIsUploadingFamily] = useState(false);
   const [isUploadingDocument, setIsUploadingDocument] = useState(false);
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
   
   const profilePhotoInputRef = useRef<HTMLInputElement>(null);
   const familyPhotoInputRef = useRef<HTMLInputElement>(null);
@@ -327,6 +345,85 @@ export default function ProfilePage() {
       });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    // Validation
+    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all password fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (passwordForm.newPassword.length < 6) {
+      toast({
+        title: "Validation Error",
+        description: "New password must be at least 6 characters",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      toast({
+        title: "Validation Error",
+        description: "New passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsChangingPassword(true);
+
+    try {
+      if (!user?.email) {
+        throw new Error("User email not found");
+      }
+
+      // Re-authenticate user with current password
+      const credential = EmailAuthProvider.credential(
+        user.email,
+        passwordForm.currentPassword
+      );
+      
+      await reauthenticateWithCredential(user, credential);
+
+      // Update password
+      await updatePassword(user, passwordForm.newPassword);
+
+      toast({
+        title: "Success!",
+        description: "Your password has been changed successfully",
+      });
+
+      // Reset form and close dialog
+      setPasswordForm({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      });
+      setShowPasswordDialog(false);
+
+    } catch (error: any) {
+      let errorMessage = "Failed to change password";
+      
+      if (error.code === 'auth/wrong-password') {
+        errorMessage = "Current password is incorrect";
+      } else if (error.code === 'auth/requires-recent-login') {
+        errorMessage = "Please log out and log in again before changing your password";
+      }
+
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsChangingPassword(false);
     }
   };
 
@@ -956,7 +1053,88 @@ export default function ProfilePage() {
           </Card>
 
           {/* Save Button */}
-          <div className="flex justify-center">
+          <div className="flex justify-center gap-4">
+            <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
+              <DialogTrigger asChild>
+                <Button 
+                  variant="outline"
+                  size="lg"
+                  className="px-8"
+                >
+                  <Key size={16} className="mr-2" />
+                  Change Password
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Change Password</DialogTitle>
+                  <DialogDescription>
+                    Enter your current password and choose a new password
+                  </DialogDescription>
+                </DialogHeader>
+                
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="current-password">Current Password</Label>
+                    <Input
+                      id="current-password"
+                      type="password"
+                      placeholder="Enter current password"
+                      value={passwordForm.currentPassword}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="new-password">New Password</Label>
+                    <Input
+                      id="new-password"
+                      type="password"
+                      placeholder="Enter new password (min 6 characters)"
+                      value={passwordForm.newPassword}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-password">Confirm New Password</Label>
+                    <Input
+                      id="confirm-password"
+                      type="password"
+                      placeholder="Re-enter new password"
+                      value={passwordForm.confirmPassword}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowPasswordDialog(false);
+                      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={handleChangePassword}
+                    disabled={isChangingPassword}
+                  >
+                    {isChangingPassword ? (
+                      <>
+                        <Loader2 size={16} className="mr-2 animate-spin" />
+                        Changing...
+                      </>
+                    ) : (
+                      'Change Password'
+                    )}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
             <Button 
               onClick={handleSave} 
               size="lg" 
