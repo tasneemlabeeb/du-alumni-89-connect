@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { departments } from '@/lib/data/departments';
 import { halls } from '@/lib/data/halls';
 import * as XLSX from 'xlsx';
@@ -69,6 +71,7 @@ export function MemberManagement() {
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [actionType, setActionType] = useState<'approve' | 'reject' | 'make_admin' | 'remove_admin' | null>(null);
   const [currentTab, setCurrentTab] = useState<'pending' | 'approved' | 'rejected'>('pending');
+  const [rejectionNote, setRejectionNote] = useState<string>('');
   
   // Filter states
   const [deptFilter, setDeptFilter] = useState<string>('all');
@@ -172,7 +175,10 @@ export function MemberManagement() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ memberId }),
+        body: JSON.stringify({ 
+          memberId,
+          reason: rejectionNote.trim() || undefined,
+        }),
       });
 
       if (!response.ok) {
@@ -195,6 +201,7 @@ export function MemberManagement() {
     } finally {
       setActionLoading(null);
       setSelectedMember(null);
+      setRejectionNote(''); // Clear the rejection note
       setActionType(null);
     }
   };
@@ -258,7 +265,7 @@ export function MemberManagement() {
         'Full Name': m.profile?.fullName || m.full_name,
         'Email': m.email,
         'Phone': m.profile?.contactNo || '',
-        'Department': m.profile?.department || '',
+        'Department/Institute': m.profile?.department || '',
         'Hall': m.profile?.hall || '',
         'Profession': m.profile?.profession || '',
         'City': m.profile?.presentCityOfLiving || '',
@@ -363,10 +370,10 @@ export function MemberManagement() {
                   </div>
                   <Select value={deptFilter} onValueChange={setDeptFilter}>
                     <SelectTrigger className="w-[180px] h-8">
-                      <SelectValue placeholder="Department" />
+                      <SelectValue placeholder="Department/Institute" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Departments</SelectItem>
+                      <SelectItem value="all">All Departments/Institutes</SelectItem>
                       {departments.map(dept => (
                         <SelectItem key={dept} value={dept}>{dept}</SelectItem>
                       ))}
@@ -662,8 +669,26 @@ export function MemberManagement() {
                 </>
               ) : actionType === 'reject' ? (
                 <>
-                  Are you sure you want to reject <strong>{selectedMember?.full_name}</strong>? 
-                  They will not be able to access the platform.
+                  <p className="mb-4">
+                    Are you sure you want to reject <strong>{selectedMember?.full_name}</strong>? 
+                    They will not be able to access the platform.
+                  </p>
+                  <div className="space-y-2">
+                    <Label htmlFor="rejectionNote">
+                      Rejection Note (Optional)
+                    </Label>
+                    <Textarea
+                      id="rejectionNote"
+                      placeholder="Enter a reason for rejection. This will be sent to the applicant via email."
+                      value={rejectionNote}
+                      onChange={(e) => setRejectionNote(e.target.value)}
+                      rows={4}
+                      className="resize-none"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      The applicant will receive an email notification with this note.
+                    </p>
+                  </div>
                 </>
               ) : actionType === 'make_admin' ? (
                 <>

@@ -385,7 +385,7 @@ function DirectoryContent() {
             Please complete your profile with all mandatory information to access member features like gallery and directory.
           </p>
           <p className="text-sm text-slate-500 mb-6">
-            Required fields: Full Name, Nick Name, Department, Hall, Contact Number, and Blood Group
+            Required fields: Full Name, Nick Name, Department/Institute, Hall, Contact Number, and Blood Group
           </p>
           <Button asChild className="w-full">
             <Link href="/profile">Complete Your Profile</Link>
@@ -650,7 +650,7 @@ function DirectoryContent() {
                 <SelectValue placeholder="Department/ Institute" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Departments</SelectItem>
+                <SelectItem value="all">All Departments/Institutes</SelectItem>
                 {departments.map((dept) => (
                   <SelectItem key={dept} value={dept}>
                     {dept}
@@ -783,7 +783,7 @@ function DirectoryContent() {
                           <p><span className="font-medium">Profession:</span> {member.profile.profession}</p>
                         )}
                         {member.profile?.department && (
-                          <p><span className="font-medium">Department:</span> {member.profile.department}</p>
+                          <p><span className="font-medium">Department/Institute:</span> {member.profile.department}</p>
                         )}
                         {member.profile?.contactNo && member.profile?.showMobileToMembers !== false && (
                           <p><span className="font-medium">Contact:</span> {member.profile.contactNo}</p>

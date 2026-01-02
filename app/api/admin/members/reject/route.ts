@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { adminAuth, adminDb } from '@/lib/firebase/admin';
 import { getStorage } from 'firebase-admin/storage';
+import { sendRejectionEmail } from '@/lib/email/nodemailer';
 
 export async function POST(request: NextRequest) {
   try {
@@ -111,6 +112,24 @@ export async function POST(request: NextRequest) {
       rejected_by: userId,
       rejection_reason: reason || null,
     });
+
+    // Send rejection email to the member
+    try {
+      const memberEmail = memberData?.email;
+      const fullName = memberData?.full_name || memberData?.profile?.fullName || 'Member';
+      
+      if (memberEmail) {
+        await sendRejectionEmail({
+          email: memberEmail,
+          fullName: fullName,
+          reason: reason,
+        });
+        console.log(`[Rejection Email] Sent to ${memberEmail}`);
+      }
+    } catch (emailError) {
+      console.error('[Rejection Email] Failed to send:', emailError);
+      // Don't fail the rejection if email fails
+    }
 
     return NextResponse.json({
       message: 'Member rejected successfully',

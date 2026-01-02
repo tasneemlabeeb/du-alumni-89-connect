@@ -39,6 +39,6 @@ export const departments = [
   'Soil Science',
   'Statistics',
   'Zoology',
-];
+].sort();
 
 export default departments;

@@ -656,14 +656,14 @@ export default function ProfilePage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="department">
-                    Department<span className="text-red-500">*</span>
+                    Department/Institute<span className="text-red-500">*</span>
                   </Label>
                   <Select 
                     value={formData.department} 
                     onValueChange={(value) => setFormData({ ...formData, department: value })}
                   >
                     <SelectTrigger id="department">
-                      <SelectValue placeholder="Enter your department" />
+                      <SelectValue placeholder="Select your department/institute" />
                     </SelectTrigger>
                     <SelectContent>
                       {departments.map((dept) => (
